@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 
 namespace ItemSetEditor
 {
@@ -22,7 +23,7 @@ namespace ItemSetEditor
             blocks = new Collection<Block>();
             mode = "any";
             type = "custom";
-            uid = "";
+            uid = CodeGenerator.GenerateUID();
             associatedMaps = new Collection<int>();
             sortrank = 0;
             associatedChampions = new Collection<int>();
