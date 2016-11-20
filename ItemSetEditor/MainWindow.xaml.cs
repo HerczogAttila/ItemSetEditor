@@ -17,8 +17,8 @@ namespace ItemSetEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ItemSet Selected { get; set; }
         public ItemSets ItemSets { get; set; }
+        public ItemSet Selected { get; set; }
         public bool IsChanged { get; set; }
 
         public MainWindow()
@@ -27,9 +27,28 @@ namespace ItemSetEditor
 
             ReadItemSets();
             if (ItemSets.itemSets.Count > 0)
-                Selected = ItemSets.itemSets.ElementAt(0);
+                SelectItemSet(ItemSets.itemSets.ElementAt(0));
 
             DataContext = this;
+        }
+
+        private void SelectItemSet(ItemSet itemSet)
+        {
+            Selected = itemSet;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Selected"));
+
+            if (Selected == null)
+            {
+                PanelSelected.Visibility = Visibility.Collapsed;
+                return;
+            }
+            else
+                PanelSelected.Visibility = Visibility.Visible;
+
+            CheckMap11.IsChecked = Selected.associatedMaps.Contains(11);
+            CheckMap8.IsChecked = Selected.associatedMaps.Contains(8);
+            CheckMap10.IsChecked = Selected.associatedMaps.Contains(10);
+            CheckMap12.IsChecked = Selected.associatedMaps.Contains(12);
         }
 
         private void itemSetChanged(bool enabled)
@@ -43,11 +62,10 @@ namespace ItemSetEditor
             ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(path));
         }
 
-        private void TextBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ItemSet_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             bool prev = IsChanged;
-            Selected = (sender as TextBlock).Tag as ItemSet;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Selected"));
+            SelectItemSet((sender as TextBlock).Tag as ItemSet);
             itemSetChanged(prev);
         }
 
@@ -58,8 +76,7 @@ namespace ItemSetEditor
                 newSet.uid = CodeGenerator.GenerateUID();
             }
             ItemSets.itemSets.Add(newSet);
-            Selected = newSet;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Selected"));
+            SelectItemSet(newSet);
             itemSetChanged(true);
         }
 
@@ -74,17 +91,21 @@ namespace ItemSetEditor
             ReadItemSets();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ItemSets"));
             itemSetChanged(false);
+
+            if (ItemSets.itemSets.Count > 0)
+                SelectItemSet(ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1));
+            else
+                SelectItemSet(null);
         }
 
         private void DeleteSelected_Click(object sender, RoutedEventArgs e)
         {
             ItemSets.itemSets.Remove(Selected);
             if (ItemSets.itemSets.Count > 0)
-                Selected = ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1);
+                SelectItemSet(ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1));
             else
-                Selected = null;
+                SelectItemSet(null);
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Selected"));
             itemSetChanged(true);
         }
 
@@ -102,13 +123,36 @@ namespace ItemSetEditor
         {
             if(e.Key == Key.Enter)
             {
-                sets.Focus();
-                (sender as Control).Focus();
+                Selected.title = (sender as TextBox).Text;
+                Selected.OnChanged("title");
+            }
+        }
+
+        private void Map_Checked(object sender, RoutedEventArgs e)
+        {
+            var id = int.Parse((sender as CheckBox).Tag.ToString());
+            if (!Selected.associatedMaps.Contains(id))
+            {
+                if (Selected.associatedMaps.Count == 0)
+                {
+                    Selected.isGlobalForMaps = false;
+                    Selected.OnChanged("isGlobalForMaps");
+                }
+
+                Selected.associatedMaps.Add(id);
+            }
+        }
+
+        private void Map_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var id = int.Parse((sender as CheckBox).Tag.ToString());
+            Selected.associatedMaps.Remove(id);
+
+            if (Selected.associatedMaps.Count == 0)
+            {
+                Selected.isGlobalForMaps = true;
+                Selected.OnChanged("isGlobalForMaps");
             }
         }
     }
 }
-//11:   Summoner's Rift
-//8:    The Crystal Scar
-//10:   Twisted Treeline
-//12:   Howling Abyss

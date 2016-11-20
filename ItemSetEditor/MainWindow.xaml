@@ -56,7 +56,7 @@
             </Expander>
         </DataTemplate>-->
         <DataTemplate x:Key="itemSetList">
-            <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="TextBox_MouseLeftButtonDown" />
+            <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -78,7 +78,7 @@
         <ScrollViewer Grid.Row="1" Grid.Column="0">
             <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
         </ScrollViewer>
-        <StackPanel Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
+        <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Title: " />
                 <TextBox Text="{Binding title}" TextChanged="Title_TextChanged" KeyDown="Title_KeyDown" />
@@ -90,6 +90,12 @@
             <TextBlock Text="{Binding sortrank, StringFormat=Sortrank: {0} }" />
             <TextBlock Text="{Binding priority, StringFormat=Priority: {0} }" />
             <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Name="CheckMap11" Tag="11" Content="Summoner's Rift" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+                <CheckBox Name="CheckMap8" Tag="8" Content="The Crystal Scar" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+                <CheckBox Name="CheckMap10" Tag="10" Content="Twisted Treeline" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+                <CheckBox Name="CheckMap12" Tag="12" Content="Howling Abyss" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+            </StackPanel>
             <ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />
             <TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />
             <ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />

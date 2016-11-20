@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace ItemSetEditor
 {
-    public class ItemSet
+    public class ItemSet : INotifyPropertyChanged
     {
-        public Collection<Block> blocks { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<Block> blocks { get; set; }
         public string mode { get; set; }
         public string type { get; set; }
         public string uid { get; set; }
-        public Collection<int> associatedMaps { get; private set; }
+        public ObservableCollection<int> associatedMaps { get; private set; }
         public int sortrank { get; set; }
-        public Collection<int> associatedChampions { get; private set; }
+        public ObservableCollection<int> associatedChampions { get; private set; }
         public bool priority { get; set; }
         public bool isGlobalForMaps { get; set; }
         public bool isGlobalForChampions { get; set; }
@@ -20,18 +22,23 @@ namespace ItemSetEditor
 
         public ItemSet()
         {
-            blocks = new Collection<Block>();
+            blocks = new ObservableCollection<Block>();
             mode = "any";
             type = "custom";
             uid = CodeGenerator.GenerateUID();
-            associatedMaps = new Collection<int>();
+            associatedMaps = new ObservableCollection<int>();
             sortrank = 0;
-            associatedChampions = new Collection<int>();
+            associatedChampions = new ObservableCollection<int>();
             priority = false;
-            isGlobalForMaps = false;
+            isGlobalForMaps = true;
             isGlobalForChampions = false;
             title = "";
             map = "any";
+        }
+
+        public void OnChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

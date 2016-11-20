@@ -5,12 +5,12 @@ namespace ItemSetEditor
     public class Block
     {
         public string type { get; set; }
-        public Collection<Item> items { get; private set; }
+        public ObservableCollection<Item> items { get; private set; }
 
         public Block()
         {
             type = "";
-            items = new Collection<Item>();
+            items = new ObservableCollection<Item>();
         }
     }
 }
