@@ -1,10 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace ItemSetEditor
 {
     public class ItemSet : INotifyPropertyChanged
     {
+        [JsonIgnore]
+        public static Collection<Map> MapIds { get; set; } = new Collection<Map>();
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<Block> blocks { get; set; }

@@ -24,6 +24,10 @@ namespace ItemSetEditor
         public MainWindow()
         {
             InitializeComponent();
+            ItemSet.MapIds.Add(new Map() { ID = 11, Name = "Summoner's Rift" });
+            ItemSet.MapIds.Add(new Map() { ID = 8, Name = "The Crystal Scar" });
+            ItemSet.MapIds.Add(new Map() { ID = 10, Name = "Twisted Treeline" });
+            ItemSet.MapIds.Add(new Map() { ID = 12, Name = "Howling Abyss" });
 
             ReadItemSets();
             if (ItemSets.itemSets.Count > 0)
@@ -45,10 +49,11 @@ namespace ItemSetEditor
             else
                 PanelSelected.Visibility = Visibility.Visible;
 
-            CheckMap11.IsChecked = Selected.associatedMaps.Contains(11);
-            CheckMap8.IsChecked = Selected.associatedMaps.Contains(8);
-            CheckMap10.IsChecked = Selected.associatedMaps.Contains(10);
-            CheckMap12.IsChecked = Selected.associatedMaps.Contains(12);
+            foreach(Map m in ItemSet.MapIds)
+            {
+                m.IsChecked = Selected.associatedMaps.Contains(m.ID);
+                m.OnChanged("IsChecked");
+            }
         }
 
         private void itemSetChanged(bool enabled)
@@ -140,6 +145,7 @@ namespace ItemSetEditor
                 }
 
                 Selected.associatedMaps.Add(id);
+                itemSetChanged(true);
             }
         }
 
@@ -147,6 +153,7 @@ namespace ItemSetEditor
         {
             var id = int.Parse((sender as CheckBox).Tag.ToString());
             Selected.associatedMaps.Remove(id);
+            itemSetChanged(true);
 
             if (Selected.associatedMaps.Count == 0)
             {
@@ -156,3 +163,7 @@ namespace ItemSetEditor
         }
     }
 }
+//https://ddragon.leagueoflegends.com/api/versions.json
+//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/map.json
+//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/champion.json
+//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/item.json

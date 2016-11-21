@@ -27,6 +27,9 @@
                 <TextBlock Margin="0,0,10,0" Text="{Binding}" />
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="mapSelect">
+            <CheckBox Tag="{Binding ID}" Content="{Binding Name}" IsChecked="{Binding IsChecked}" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+        </DataTemplate>
         <DataTemplate x:Key="itemBlock">
             <StackPanel>
                 <TextBlock Text="{Binding type, StringFormat=Type: {0} }" />
@@ -90,12 +93,7 @@
             <TextBlock Text="{Binding sortrank, StringFormat=Sortrank: {0} }" />
             <TextBlock Text="{Binding priority, StringFormat=Priority: {0} }" />
             <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />
-            <StackPanel Orientation="Horizontal">
-                <CheckBox Name="CheckMap11" Tag="11" Content="Summoner's Rift" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-                <CheckBox Name="CheckMap8" Tag="8" Content="The Crystal Scar" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-                <CheckBox Name="CheckMap10" Tag="10" Content="Twisted Treeline" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-                <CheckBox Name="CheckMap12" Tag="12" Content="Howling Abyss" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-            </StackPanel>
+            <ItemsControl ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateHorizontal}" />
             <ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />
             <TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />
             <ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />
