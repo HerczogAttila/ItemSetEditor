@@ -18,7 +18,8 @@ namespace ItemSetEditor
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private WebClient WebClient = new WebClient();
+        public static ItemDto Items { get; set; }
+
         private static string PathItemSets = "Config\\ItemSets.json";
         private static string PathConfig = "ItemSetEditor\\Config.json";
         private static string LinkVersions = "https://ddragon.leagueoflegends.com/api/versions.json";
@@ -27,18 +28,20 @@ namespace ItemSetEditor
         private string LinkChampions => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/champion.json";
         private string LinkItems => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/item.json";
         private string LinkSprites => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/img/sprite/";
-        private string PathMap => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
-        private string PathChampions => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
-        private string PathItems => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
+        private string PathMaps => "ItemSetEditor\\maps_" + Config.Version + "_" + Config.Language + ".json";
+        private string PathChampions => "ItemSetEditor\\champions_" + Config.Version + "_" + Config.Language + ".json";
+        private string PathItems => "ItemSetEditor\\items_" + Config.Version + "_" + Config.Language + ".json";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public MapDto Map { get; set; }
+        public MapDto Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public bool IsChanged { get; set; }
 
         public static Config Config;
+
+        private WebClient WebClient = new WebClient();
 
         public MainWindow()
         {
@@ -133,20 +136,37 @@ namespace ItemSetEditor
 
         private async Task ReadAndDownloadMaps()
         {
-            bool isMapDownloaded = false;
-            if (!File.Exists(PathMap))
+            bool isDownloaded = false;
+            if (!File.Exists(PathMaps))
             {
-                await DownloadAndSave(LinkMaps, PathMap);
-                isMapDownloaded = true;
+                await DownloadAndSave(LinkMaps, PathMaps);
+                isDownloaded = true;
             }
 
-            Map = JsonConvert.DeserializeObject<MapDto>(File.ReadAllText(PathMap));
-            foreach(MapData s in Map.data.Values)
+            Maps = JsonConvert.DeserializeObject<MapDto>(File.ReadAllText(PathMaps));
+            foreach(MapData s in Maps.data.Values)
             {
                 if(!Config.IgnoredMapIds.Contains(s.MapId))
                     ItemSet.MapIds.Add(s);
 
-                if (isMapDownloaded)
+                if (isDownloaded)
+                    DownloadImage(s.image);
+            }
+        }
+
+        private async Task ReadAndDownloadItems()
+        {
+            bool isDownloaded = false;
+            if (!File.Exists(PathItems))
+            {
+                await DownloadAndSave(LinkItems, PathItems);
+                isDownloaded = true;
+            }
+
+            Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
+            foreach (ItemData s in Items.data.Values)
+            {
+                if (isDownloaded)
                     DownloadImage(s.image);
             }
         }
@@ -212,6 +232,7 @@ namespace ItemSetEditor
 
             await ReadConfig();
             await ReadAndDownloadMaps();
+            await ReadAndDownloadItems();
 
             DataContext = this;
 

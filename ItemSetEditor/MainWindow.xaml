@@ -11,11 +11,11 @@
             <StackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
         <DataTemplate x:Key="item">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding id}" />
-                <TextBlock Text=":" />
-                <TextBlock Text="{Binding count}" />
-            </StackPanel>
+            <Image Width="48" Height="48" DataContext="{Binding image}">
+                <Image.Source>
+                    <CroppedBitmap Source="{Binding AbsolutePath}" SourceRect="{Binding SourceRect}" />
+                </Image.Source>
+            </Image>
         </DataTemplate>
         <DataTemplate x:Key="championId">
             <StackPanel Orientation="Horizontal">
@@ -30,13 +30,12 @@
         <DataTemplate x:Key="mapSelect">
             <StackPanel Margin="0,0,15,0" Orientation="Horizontal">
                 <CheckBox Tag="{Binding MapId}" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-                <Image Width="48" Height="48">
+                <Image Width="48" Height="48" DataContext="{Binding image}">
                     <Image.Source>
-                        <CroppedBitmap Source="{Binding image.uri}" SourceRect="{Binding image.SourceRect}" />
+                        <CroppedBitmap Source="{Binding AbsolutePath}" SourceRect="{Binding SourceRect}" />
                     </Image.Source>
                 </Image>
             </StackPanel>
-            
         </DataTemplate>
         <DataTemplate x:Key="itemBlock">
             <StackPanel>
