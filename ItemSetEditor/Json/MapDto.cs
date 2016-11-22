@@ -2,11 +2,11 @@
 
 namespace ItemSetEditor
 {
-    public class Map
+    public class MapDto
     {
         public Dictionary<int, MapData> data { get; private set; }
 
-        public Map()
+        public MapDto()
         {
             data = new Dictionary<int, MapData>();
         }

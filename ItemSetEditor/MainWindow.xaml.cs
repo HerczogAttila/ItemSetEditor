@@ -33,7 +33,7 @@ namespace ItemSetEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Map Map { get; set; }
+        public MapDto Map { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public bool IsChanged { get; set; }
@@ -140,7 +140,7 @@ namespace ItemSetEditor
                 isMapDownloaded = true;
             }
 
-            Map = JsonConvert.DeserializeObject<Map>(File.ReadAllText(PathMap));
+            Map = JsonConvert.DeserializeObject<MapDto>(File.ReadAllText(PathMap));
             foreach(MapData s in Map.data.Values)
             {
                 if(!Config.IgnoredMapIds.Contains(s.MapId))
