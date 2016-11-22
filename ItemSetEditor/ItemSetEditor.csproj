@@ -69,6 +69,8 @@
     </Compile>
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="DataModel\Config.cs" />
+    <Compile Include="Json\ChampionData.cs" />
+    <Compile Include="Json\ChampionDto.cs" />
     <Compile Include="Json\DDImage.cs" />
     <Compile Include="Json\ItemData.cs" />
     <Compile Include="Json\ItemDto.cs" />

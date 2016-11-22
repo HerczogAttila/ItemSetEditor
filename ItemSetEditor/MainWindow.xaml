@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ItemSetEditor"
         mc:Ignorable="d"
-        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded">
+        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ItemsPanelTemplate x:Key="templateHorizontal">
             <StackPanel Orientation="Horizontal" />
@@ -21,6 +21,13 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding}" />
             </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="championIcon">
+            <Image Width="48" Height="48" DataContext="{Binding image}">
+                <Image.Source>
+                    <CroppedBitmap Source="{Binding AbsolutePath}" SourceRect="{Binding SourceRect}" />
+                </Image.Source>
+            </Image>
         </DataTemplate>
         <DataTemplate x:Key="mapId">
             <StackPanel Orientation="Horizontal">
@@ -67,20 +74,21 @@
             <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
         </ScrollViewer>
         <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                 <TextBlock Text="Title: " />
                 <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />
             </StackPanel>
-            <TextBlock Text="{Binding map, StringFormat=Map: {0} }"  />
+            <!--<TextBlock Text="{Binding map, StringFormat=Map: {0} }"  />
             <TextBlock Text="{Binding mode, StringFormat=Mode: {0} }" />
             <TextBlock Text="{Binding type, StringFormat=Type: {0} }" />
             <TextBlock Text="{Binding uid, StringFormat=UID: {0} }" />
             <TextBlock Text="{Binding sortrank, StringFormat=Sortrank: {0} }" />
             <TextBlock Text="{Binding priority, StringFormat=Priority: {0} }" />
-            <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />
+            <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />-->
             <ItemsControl ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateHorizontal}" />
-            <ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />
+            <!--<ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />-->
             <TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />
+            <ItemsControl ItemsSource="{Binding Champions}" ItemTemplate="{StaticResource championIcon}" ItemsPanel="{StaticResource templateHorizontal}" />
             <ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />
             <TextBlock Text="Item blocks:" />
             <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />

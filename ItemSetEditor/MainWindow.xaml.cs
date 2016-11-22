@@ -19,6 +19,7 @@ namespace ItemSetEditor
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public static ItemDto Items { get; set; }
+        public static ChampionDto Champions { get; set; }
 
         private static string PathItemSets = "Config\\ItemSets.json";
         private static string PathConfig = "ItemSetEditor\\Config.json";
@@ -114,7 +115,11 @@ namespace ItemSetEditor
         private void ReadItemSets()
         {
             if (File.Exists(PathItemSets))
+            {
                 ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(PathItemSets));
+                foreach (ItemSet i in ItemSets.itemSets)
+                    i.Deserialized();
+            }
             else
                 ItemSets = new ItemSets();
         }
@@ -165,6 +170,23 @@ namespace ItemSetEditor
 
             Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
             foreach (ItemData s in Items.data.Values)
+            {
+                if (isDownloaded)
+                    DownloadImage(s.image);
+            }
+        }
+
+        private async Task ReadAndDownloadChampions()
+        {
+            bool isDownloaded = false;
+            if (!File.Exists(PathChampions))
+            {
+                await DownloadAndSave(LinkChampions, PathChampions);
+                isDownloaded = true;
+            }
+
+            Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
+            foreach (ChampionData s in Champions.data.Values)
             {
                 if (isDownloaded)
                     DownloadImage(s.image);
@@ -233,6 +255,7 @@ namespace ItemSetEditor
             await ReadConfig();
             await ReadAndDownloadMaps();
             await ReadAndDownloadItems();
+            await ReadAndDownloadChampions();
 
             DataContext = this;
 
