@@ -72,10 +72,10 @@
     <Compile Include="Json\DDImage.cs" />
     <Compile Include="Json\Map.cs" />
     <Compile Include="Json\MapData.cs" />
-    <Compile Include="Json\Block.cs" />
-    <Compile Include="Json\Item.cs" />
-    <Compile Include="Json\ItemSet.cs" />
-    <Compile Include="Json\ItemSets.cs" />
+    <Compile Include="Json\ItemSets\Block.cs" />
+    <Compile Include="Json\ItemSets\Item.cs" />
+    <Compile Include="Json\ItemSets\ItemSet.cs" />
+    <Compile Include="Json\ItemSets\ItemSets.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
