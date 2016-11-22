@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ItemSetEditor"
         mc:Ignorable="d"
-        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded" >
+        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded">
     <Window.Resources>
         <ItemsPanelTemplate x:Key="templateHorizontal">
-            <StackPanel Orientation="Horizontal"></StackPanel>
+            <StackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
         <DataTemplate x:Key="item">
             <StackPanel Orientation="Horizontal">
@@ -28,7 +28,15 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="mapSelect">
-            <CheckBox Tag="{Binding ID}" Content="{Binding Name}" IsChecked="{Binding IsChecked}" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+            <StackPanel Margin="0,0,15,0" Orientation="Horizontal">
+                <CheckBox Tag="{Binding MapId}" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Checked="Map_Checked" Unchecked="Map_Unchecked" />
+                <Image Width="48" Height="48">
+                    <Image.Source>
+                        <CroppedBitmap Source="{Binding image.uri}" SourceRect="{Binding image.SourceRect}" />
+                    </Image.Source>
+                </Image>
+            </StackPanel>
+            
         </DataTemplate>
         <DataTemplate x:Key="itemBlock">
             <StackPanel>
@@ -36,28 +44,6 @@
                 <ListView Margin="5" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
             </StackPanel>
         </DataTemplate>
-        <!--<DataTemplate x:Key="itemSet">
-            <Expander IsExpanded="False" Header="{Binding title}" >
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Title: " />
-                        <TextBox Text="{Binding title}" />
-                    </StackPanel>
-                    <TextBlock Text="{Binding map, StringFormat=Map: {0}, Mode=TwoWay}" />
-                    <TextBlock Text="{Binding mode, StringFormat=Mode: {0} }" />
-                    <TextBlock Text="{Binding type, StringFormat=Type: {0} }" />
-                    <TextBlock Text="{Binding uid, StringFormat=UID: {0} }" />
-                    <TextBlock Text="{Binding sortrank, StringFormat=Sortrank: {0} }" />
-                    <TextBlock Text="{Binding priority, StringFormat=Priority: {0} }" />
-                    <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />
-                    <ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />
-                    <TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />
-                    <ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />
-                    <TextBlock Text="Item blocks:" />
-                    <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
-                </StackPanel>
-            </Expander>
-        </DataTemplate>-->
         <DataTemplate x:Key="itemSetList">
             <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
         </DataTemplate>
@@ -69,7 +55,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
@@ -84,7 +70,7 @@
         <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Title: " />
-                <TextBox Text="{Binding title}" TextChanged="Title_TextChanged" KeyDown="Title_KeyDown" />
+                <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />
             </StackPanel>
             <TextBlock Text="{Binding map, StringFormat=Map: {0} }"  />
             <TextBlock Text="{Binding mode, StringFormat=Mode: {0} }" />
@@ -101,10 +87,7 @@
             <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="2">
-            
+
         </StackPanel>
-        <!--<ScrollViewer>
-            <ItemsControl Margin="15" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSet}" />
-        </ScrollViewer>-->
     </Grid>
 </Window>

@@ -68,7 +68,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGenerator.cs" />
-    <Compile Include="DataModel\Map.cs" />
+    <Compile Include="DataModel\Config.cs" />
+    <Compile Include="Json\DDImage.cs" />
+    <Compile Include="Json\Map.cs" />
+    <Compile Include="Json\MapData.cs" />
     <Compile Include="Json\Block.cs" />
     <Compile Include="Json\Item.cs" />
     <Compile Include="Json\ItemSet.cs" />

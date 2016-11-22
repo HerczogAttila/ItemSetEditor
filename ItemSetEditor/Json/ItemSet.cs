@@ -7,7 +7,7 @@ namespace ItemSetEditor
     public class ItemSet : INotifyPropertyChanged
     {
         [JsonIgnore]
-        public static Collection<Map> MapIds { get; set; } = new Collection<Map>();
+        public static ObservableCollection<MapData> MapIds { get; set; } = new ObservableCollection<MapData>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 

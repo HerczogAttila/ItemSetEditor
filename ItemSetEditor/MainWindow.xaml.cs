@@ -5,6 +5,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 using System.Windows.Input;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System;
+using System.Net;
+using System.Collections.ObjectModel;
 
 namespace ItemSetEditor
 {
@@ -13,27 +18,68 @@ namespace ItemSetEditor
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private static string path = "Config\\ItemSets.json";
+        private WebClient WebClient = new WebClient();
+        private static string PathItemSets = "Config\\ItemSets.json";
+        private static string PathConfig = "ItemSetEditor\\Config.json";
+        private static string LinkVersions = "https://ddragon.leagueoflegends.com/api/versions.json";
+
+        private string LinkMaps => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/map.json";
+        private string LinkChampions => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/champion.json";
+        private string LinkItems => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/item.json";
+        private string LinkSprites => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/img/sprite/";
+        private string PathMap => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
+        private string PathChampions => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
+        private string PathItems => "ItemSetEditor\\map_" + Config.Version + "_" + Config.Language + ".json";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public Map Map { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public bool IsChanged { get; set; }
 
+        public static Config Config;
+
         public MainWindow()
         {
             InitializeComponent();
-            ItemSet.MapIds.Add(new Map() { ID = 11, Name = "Summoner's Rift" });
-            ItemSet.MapIds.Add(new Map() { ID = 8, Name = "The Crystal Scar" });
-            ItemSet.MapIds.Add(new Map() { ID = 10, Name = "Twisted Treeline" });
-            ItemSet.MapIds.Add(new Map() { ID = 12, Name = "Howling Abyss" });
+        }
 
-            ReadItemSets();
-            if (ItemSets.itemSets.Count > 0)
-                SelectItemSet(ItemSets.itemSets.ElementAt(0));
+        private void DownloadImage(DDImage image)
+        {
+            if (File.Exists(image.Path))
+                return;
 
-            DataContext = this;
+            WebClient.DownloadFile(image.Link, image.Path);
+        }
+
+        private async Task<string> Download(string link)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(link);
+                var response = client.GetAsync(link).Result;
+                if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
+            }
+
+            return string.Empty;
+        }
+
+        private async Task DownloadAndSave(string link, string path)
+        {
+            var data = await Download(link);
+            File.WriteAllText(path, data);
+        }
+
+        private async Task<string> LatestVersion()
+        {
+            var data = await Download(LinkVersions);
+            var versions = JsonConvert.DeserializeObject<Collection<string>>(data);
+            if (versions != null)
+                if (versions.Count > 0)
+                    return versions.ElementAt(0);
+
+            return "6.22.1";
         }
 
         private void SelectItemSet(ItemSet itemSet)
@@ -49,9 +95,9 @@ namespace ItemSetEditor
             else
                 PanelSelected.Visibility = Visibility.Visible;
 
-            foreach(Map m in ItemSet.MapIds)
+            foreach(MapData m in ItemSet.MapIds)
             {
-                m.IsChecked = Selected.associatedMaps.Contains(m.ID);
+                m.IsChecked = Selected.associatedMaps.Contains(m.MapId);
                 m.OnChanged("IsChecked");
             }
         }
@@ -64,7 +110,50 @@ namespace ItemSetEditor
 
         private void ReadItemSets()
         {
-            ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(path));
+            if (File.Exists(PathItemSets))
+                ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(PathItemSets));
+            else
+                ItemSets = new ItemSets();
+        }
+
+        private async Task ReadConfig()
+        {
+            if (File.Exists(PathConfig))
+                Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PathConfig));
+            else
+            {
+                Config = new Config() { Version = await LatestVersion(), Language = "en_US" };
+                
+                Config.IgnoredMapIds.Add(1);
+                Config.IgnoredMapIds.Add(8);
+                Config.IgnoredMapIds.Add(9);
+                SaveConfig();
+            }
+        }
+
+        private async Task ReadAndDownloadMaps()
+        {
+            bool isMapDownloaded = false;
+            if (!File.Exists(PathMap))
+            {
+                await DownloadAndSave(LinkMaps, PathMap);
+                isMapDownloaded = true;
+            }
+
+            Map = JsonConvert.DeserializeObject<Map>(File.ReadAllText(PathMap));
+            foreach(MapData s in Map.data.Values)
+            {
+                if(!Config.IgnoredMapIds.Contains(s.MapId))
+                    ItemSet.MapIds.Add(s);
+
+                if (isMapDownloaded)
+                    DownloadImage(s.image);
+            }
+        }
+
+        private void SaveConfig()
+        {
+            File.WriteAllText(PathConfig, JsonConvert.SerializeObject(Config));
         }
 
         private void ItemSet_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -87,7 +176,7 @@ namespace ItemSetEditor
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(ItemSets));
+            File.WriteAllText(PathItemSets, JsonConvert.SerializeObject(ItemSets));
             itemSetChanged(false);
         }
 
@@ -95,12 +184,13 @@ namespace ItemSetEditor
         {
             ReadItemSets();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ItemSets"));
-            itemSetChanged(false);
 
             if (ItemSets.itemSets.Count > 0)
                 SelectItemSet(ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1));
             else
                 SelectItemSet(null);
+
+            itemSetChanged(false);
         }
 
         private void DeleteSelected_Click(object sender, RoutedEventArgs e)
@@ -114,14 +204,18 @@ namespace ItemSetEditor
             itemSetChanged(true);
         }
 
-        private void Title_TextChanged(object sender, TextChangedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            itemSetChanged(true);
-        }
+            foreach (string s in new string[] { "Config", "ItemSetEditor" })
+                if (!Directory.Exists(s))
+                    Directory.CreateDirectory(s);
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            itemSetChanged(false);
+            await ReadConfig();
+            await ReadAndDownloadMaps();
+
+            DataContext = this;
+
+            UndoAll_Click(this, new RoutedEventArgs());
         }
 
         private void Title_KeyDown(object sender, KeyEventArgs e)
@@ -163,7 +257,3 @@ namespace ItemSetEditor
         }
     }
 }
-//https://ddragon.leagueoflegends.com/api/versions.json
-//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/map.json
-//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/champion.json
-//http://ddragon.leagueoflegends.com/cdn/6.22.1/data/en_US/item.json
