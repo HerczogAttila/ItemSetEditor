@@ -47,6 +47,10 @@
         <DataTemplate x:Key="itemBlock">
             <StackPanel>
                 <TextBlock Text="{Binding type, StringFormat=Type: {0} }" />
+                <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                    <TextBlock Text="Block title: " />
+                    <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
+                </StackPanel>
                 <ListView Margin="5" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
             </StackPanel>
         </DataTemplate>

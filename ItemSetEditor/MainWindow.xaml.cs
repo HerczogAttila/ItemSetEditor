@@ -268,6 +268,7 @@ namespace ItemSetEditor
             {
                 Selected.title = (sender as TextBox).Text;
                 Selected.OnChanged("title");
+                itemSetChanged(true);
             }
         }
 
@@ -297,6 +298,18 @@ namespace ItemSetEditor
             {
                 Selected.isGlobalForMaps = true;
                 Selected.OnChanged("isGlobalForMaps");
+            }
+        }
+
+        private void BlockTitle_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var txt = (sender as TextBox);
+                var itemBlock = txt.Tag as Block;
+                itemBlock.type = txt.Text;
+                itemBlock.OnChanged("type");
+                itemSetChanged(true);
             }
         }
     }
