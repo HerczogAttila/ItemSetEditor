@@ -312,5 +312,21 @@ namespace ItemSetEditor
                 itemSetChanged(true);
             }
         }
+
+        private void NewItemBlock_Click(object sender, RoutedEventArgs e)
+        {
+            Selected.blocks.Add(new Block() { type = "Item block " + (Selected.blocks.Count() + 1) });
+            itemSetChanged(true);
+        }
+
+        private void DeleteItemBlock_Click(object sender, RoutedEventArgs e)
+        {
+            var itemBlock = (sender as Control).Tag as Block;
+            if (itemBlock != null)
+            {
+                Selected.blocks.Remove(itemBlock);
+                itemSetChanged(true);
+            }
+        }
     }
 }
