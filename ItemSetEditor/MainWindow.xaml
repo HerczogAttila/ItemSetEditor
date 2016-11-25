@@ -10,6 +10,9 @@
         <ItemsPanelTemplate x:Key="templateHorizontal">
             <StackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Key="templateWrap">
+            <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
+        </ItemsPanelTemplate>
         <DataTemplate x:Key="item">
             <Image Width="48" Height="48" DataContext="{Binding image}">
                 <Image.Source>
@@ -19,15 +22,25 @@
         </DataTemplate>
         <DataTemplate x:Key="championId">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding}" />
+                <TextBlock Margin="0,0,10,0" Text="{Binding}" />
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="championIcon">
-            <Image Width="48" Height="48" DataContext="{Binding image}">
+            <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="ChampionRemove_MouseLeftButtonDown" >
                 <Image.Source>
-                    <CroppedBitmap Source="{Binding AbsolutePath}" SourceRect="{Binding SourceRect}" />
+                    <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                 </Image.Source>
             </Image>
+        </DataTemplate>
+        <DataTemplate x:Key="championSelect">
+            <StackPanel Width="100" Orientation="Horizontal">
+                <Image Tag="{Binding}" Width="24" Height="24" MouseLeftButtonDown="ChampionAdd_MouseLeftButtonDown" >
+                    <Image.Source>
+                        <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                    </Image.Source>
+                </Image>
+                <TextBlock Text="{Binding name}" />
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="mapId">
             <StackPanel Orientation="Horizontal">
@@ -45,15 +58,17 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="itemBlock">
-            <StackPanel>
-                <!--<TextBlock Text="{Binding type, StringFormat=Type: {0} }" />-->
-                <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                    <TextBlock Text="Block title: " />
-                    <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
-                    <Button Margin="25,0,0,0" Tag="{Binding}" Content="Delete" Click="DeleteItemBlock_Click" />
+            <Expander Header="{Binding type}" IsExpanded="true" >
+                <StackPanel>
+                    <!--<TextBlock Text="{Binding type, StringFormat=Type: {0} }" />-->
+                    <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                        <TextBlock Text="Block title: " />
+                        <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
+                        <Button Margin="25,0,0,0" Tag="{Binding}" Content="Delete" Click="DeleteItemBlock_Click" />
+                    </StackPanel>
+                    <ListView Margin="5" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
                 </StackPanel>
-                <ListView Margin="5" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
-            </StackPanel>
+            </Expander>
         </DataTemplate>
         <DataTemplate x:Key="itemSetList">
             <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
@@ -92,15 +107,24 @@
             <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />-->
             <ItemsControl ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateHorizontal}" />
             <!--<ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />-->
-            <TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />
+            <!--<TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />-->
             <ItemsControl ItemsSource="{Binding Champions}" ItemTemplate="{StaticResource championIcon}" ItemsPanel="{StaticResource templateHorizontal}" />
-            <ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />
+            <!--<ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />-->
             <TextBlock Margin="0,10,0,0" Text="Item blocks:" />
             <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
             <Button Content="New item block" Click="NewItemBlock_Click" HorizontalAlignment="Left" />
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="2">
-
+            <TabControl>
+                <TabItem Header="Items">
+                    
+                </TabItem>
+                <TabItem Header="Champions">
+                    <ScrollViewer Height="500">
+                        <ItemsControl ItemsSource="{Binding Champions.data.Values}" ItemTemplate="{StaticResource championSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
         </StackPanel>
     </Grid>
 </Window>

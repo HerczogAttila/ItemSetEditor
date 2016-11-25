@@ -208,7 +208,8 @@ namespace ItemSetEditor
         private void NewItemSet_Click(object sender, RoutedEventArgs e)
         {
             var newSet = new ItemSet() { title = "Item set " + ItemSets.itemSets.Count };
-            while(ItemSets.itemSets.FirstOrDefault(s => s.uid == newSet.uid) != null) {
+            newSet.blocks.Add(new Block() { type = "Item block 1" });
+            while (ItemSets.itemSets.FirstOrDefault(s => s.uid == newSet.uid) != null) {
                 newSet.uid = CodeGenerator.GenerateUID();
             }
             ItemSets.itemSets.Add(newSet);
@@ -325,6 +326,38 @@ namespace ItemSetEditor
             if (itemBlock != null)
             {
                 Selected.blocks.Remove(itemBlock);
+                itemSetChanged(true);
+            }
+        }
+
+        private void ChampionRemove_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var champion = (sender as Image).Tag as ChampionData;
+            Selected.associatedChampions.Remove(champion.key);
+            Selected.Champions.Remove(champion);
+
+            if (Selected.associatedChampions.Count == 0)
+            {
+                Selected.isGlobalForChampions = true;
+                Selected.OnChanged("isGlobalForChampions");
+            }
+
+            itemSetChanged(true);
+        }
+
+        private void ChampionAdd_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var champion = (sender as Image).Tag as ChampionData;
+            if (!Selected.associatedChampions.Contains(champion.key))
+            {
+                if (Selected.associatedChampions.Count == 0)
+                {
+                    Selected.isGlobalForChampions = false;
+                    Selected.OnChanged("isGlobalForChampions");
+                }
+
+                Selected.associatedChampions.Add(champion.key);
+                Selected.Champions.Add(champion);
                 itemSetChanged(true);
             }
         }
