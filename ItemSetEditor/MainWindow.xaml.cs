@@ -20,6 +20,7 @@ namespace ItemSetEditor
     {
         public static ItemDto Items { get; set; }
         public static ChampionDto Champions { get; set; }
+        public static Config Config;
 
         private static string PathItemSets = "Config\\ItemSets.json";
         private static string PathConfig = "ItemSetEditor\\Config.json";
@@ -40,9 +41,8 @@ namespace ItemSetEditor
         public ItemSet Selected { get; set; }
         public bool IsChanged { get; set; }
 
-        public static Config Config;
-
         private WebClient WebClient = new WebClient();
+        private ItemData Dragged { get; set; }
 
         public MainWindow()
         {
@@ -169,10 +169,13 @@ namespace ItemSetEditor
             }
 
             Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
+            Items.Deserialized();
             foreach (ItemData s in Items.data.Values)
             {
                 if (isDownloaded)
                     DownloadImage(s.image);
+
+                s.Deserialized();
             }
         }
 
@@ -361,5 +364,63 @@ namespace ItemSetEditor
                 itemSetChanged(true);
             }
         }
+
+        #region drag
+
+        private void image_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed && Dragged == null)
+            {
+                Mouse.AddMouseMoveHandler(this, Item_MouseMove);
+                Mouse.AddMouseUpHandler(this, Item_MouseRelease);
+
+                drag.Source = (sender as Image).Source;
+                Mouse.OverrideCursor = Cursors.No;
+                drag.Visibility = Visibility.Visible;
+
+                Dragged = (sender as Image).Tag as ItemData;
+            }
+        }
+
+        private void Item_MouseMove(object sender, MouseEventArgs e)
+        {
+            var p = System.Windows.Forms.Control.MousePosition;
+            drag.Margin = new Thickness(p.X - 115, p.Y - 119, 0, 0);
+
+            if(e.LeftButton == MouseButtonState.Released)
+                Item_MouseRelease(sender, e);
+        }
+
+        private void Item_MouseRelease(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+            drag.Visibility = Visibility.Collapsed;
+
+            Mouse.RemoveMouseMoveHandler(this, Item_MouseMove);
+            Mouse.RemoveMouseUpHandler(this, Item_MouseRelease);
+        }
+
+        #endregion
+
+        private void ItemBlock_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Dragged == null)
+                return;
+
+            var block = (sender as StackPanel).Tag as Block;
+            block.items.Add(new Item() { id = int.Parse(Dragged.id), count = 1 });
+
+            Dragged = null;
+
+            itemSetChanged(true);
+        }
+
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = (sender as Image).Tag as Item;
+            foreach (var v in Selected.blocks)
+                v.items.Remove(item);
+        }
     }
 }
+//TODO: csak azok a tárgyak jelenjenek meg amiket az adott mapon adott hőssel lehet használni

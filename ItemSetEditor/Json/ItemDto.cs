@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ItemSetEditor
 {
@@ -9,6 +10,16 @@ namespace ItemSetEditor
         public ItemDto()
         {
             data = new Dictionary<string, ItemData>();
+        }
+
+        public void Deserialized()
+        {
+            var keys = data.Where(s => !s.Value.gold.purchasable).Select(s => s.Key).ToArray();
+            foreach (string s in keys)
+                data.Remove(s);
+
+            foreach (KeyValuePair<string, ItemData> s in data)
+                s.Value.id = s.Key;
         }
     }
 }
