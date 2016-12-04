@@ -103,7 +103,7 @@
         <TabControl Grid.Row="1" Grid.Column="2">
             <TabItem Header="Items">
                 <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding Items.data.Values}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                    <ItemsControl ItemsSource="{Binding SortedItems}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="Champions">

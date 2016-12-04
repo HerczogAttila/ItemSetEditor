@@ -14,9 +14,11 @@ namespace ItemSetEditor
 
         public void Deserialized()
         {
-            var keys = data.Where(s => !s.Value.gold.purchasable).Select(s => s.Key).ToArray();
-            foreach (string s in keys)
-                data.Remove(s);
+            foreach (var v in data.Where(s => !s.Value.gold.purchasable).ToArray())
+                data.Remove(v.Key);
+
+            foreach (int v in MainWindow.Config.IgnoredItemIds)
+                data.Remove(v + "");
 
             foreach (KeyValuePair<string, ItemData> s in data)
                 s.Value.id = s.Key;

@@ -10,6 +10,7 @@ using System.Net.Http;
 using System;
 using System.Net;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace ItemSetEditor
 {
@@ -36,6 +37,7 @@ namespace ItemSetEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public IEnumerable<ItemData> SortedItems { get; set; }
         public MapDto Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
@@ -55,9 +57,9 @@ namespace ItemSetEditor
             return PointFromScreen(new Point(p.X, p.Y));
         }
 
-        private void DownloadImage(DDImage image)
+        private void DownloadImage(DDImage image, bool update = false)
         {
-            if (File.Exists(image.Path))
+            if (File.Exists(image.Path) && !update)
                 return;
 
             WebClient.DownloadFile(image.Link, image.Path);
@@ -89,7 +91,25 @@ namespace ItemSetEditor
                 if (versions.Count > 0)
                     return versions.ElementAt(0);
 
-            return "6.22.1";
+            return "6.23.1";
+        }
+
+        private void SortItems()
+        {
+            var sorted = Items.data.Values.Where(s => !s.hideFromAll);
+            foreach (var v in Selected.associatedMaps)
+                sorted = sorted.Where(s => s.maps.ContainsKey(v + ""));
+
+            ChampionData cd;
+            foreach (var v in Selected.associatedChampions)
+            {
+                cd = Champions.data.Values.FirstOrDefault(s => s.key.Equals(v));
+                if (cd != null)
+                    sorted = sorted.Where(s => s.requiredChampion.Equals("") || s.requiredChampion.Equals(cd.name));
+            }
+
+            SortedItems = sorted;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SortedItems"));
         }
 
         private void SelectItemSet(ItemSet itemSet)
@@ -110,6 +130,8 @@ namespace ItemSetEditor
                 m.IsChecked = Selected.associatedMaps.Contains(m.MapId);
                 m.OnChanged("IsChecked");
             }
+
+            SortItems();
         }
 
         private void itemSetChanged(bool enabled)
@@ -141,6 +163,19 @@ namespace ItemSetEditor
                 Config.IgnoredMapIds.Add(1);
                 Config.IgnoredMapIds.Add(8);
                 Config.IgnoredMapIds.Add(9);
+                Config.IgnoredItemIds.Add(3631);
+                Config.IgnoredItemIds.Add(3634);
+                Config.IgnoredItemIds.Add(3635);
+                Config.IgnoredItemIds.Add(3636);
+                Config.IgnoredItemIds.Add(3640);
+                Config.IgnoredItemIds.Add(3641);
+                Config.IgnoredItemIds.Add(3642);
+                Config.IgnoredItemIds.Add(3643);
+                Config.IgnoredItemIds.Add(3647);
+                Config.IgnoredItemIds.Add(3680);
+                Config.IgnoredItemIds.Add(3681);
+                Config.IgnoredItemIds.Add(3682);
+                Config.IgnoredItemIds.Add(3683);
                 SaveConfig();
             }
         }
@@ -160,8 +195,7 @@ namespace ItemSetEditor
                 if(!Config.IgnoredMapIds.Contains(s.MapId))
                     ItemSet.MapIds.Add(s);
 
-                if (isDownloaded)
-                    DownloadImage(s.image);
+                DownloadImage(s.image, isDownloaded);
             }
         }
 
@@ -178,8 +212,7 @@ namespace ItemSetEditor
             Items.Deserialized();
             foreach (ItemData s in Items.data.Values)
             {
-                if (isDownloaded)
-                    DownloadImage(s.image);
+                DownloadImage(s.image, isDownloaded);
 
                 s.Deserialized();
             }
@@ -197,8 +230,7 @@ namespace ItemSetEditor
             Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
             foreach (ChampionData s in Champions.data.Values)
             {
-                if (isDownloaded)
-                    DownloadImage(s.image);
+                DownloadImage(s.image, isDownloaded);
             }
         }
 
@@ -295,6 +327,7 @@ namespace ItemSetEditor
 
                 Selected.associatedMaps.Add(id);
                 itemSetChanged(true);
+                SortItems();
             }
         }
 
@@ -303,6 +336,7 @@ namespace ItemSetEditor
             var id = int.Parse((sender as CheckBox).Tag.ToString());
             Selected.associatedMaps.Remove(id);
             itemSetChanged(true);
+            SortItems();
 
             if (Selected.associatedMaps.Count == 0)
             {
@@ -352,6 +386,7 @@ namespace ItemSetEditor
             }
 
             itemSetChanged(true);
+            SortItems();
         }
 
         private void ChampionAdd_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -368,6 +403,7 @@ namespace ItemSetEditor
                 Selected.associatedChampions.Add(champion.key);
                 Selected.Champions.Add(champion);
                 itemSetChanged(true);
+                SortItems();
             }
         }
 
@@ -434,4 +470,4 @@ namespace ItemSetEditor
         }
     }
 }
-//TODO: csak azok a tárgyak jelenjenek meg amiket az adott mapon adott hőssel lehet használni
+//hősök és tárgyak szűrése név és kategória alapján
