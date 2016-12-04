@@ -14,21 +14,21 @@
             <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
         </ItemsPanelTemplate>
         <DataTemplate x:Key="item">
-            <Image Margin="5" Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="Image_MouseLeftButtonDown" >
+            <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="RemoveItem_MouseLeftButtonDown">
                 <Image.Source>
                     <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="itemSelect">
-            <Image Margin="5" Tag="{Binding}" Width="48" Height="48" MouseMove="image_MouseMove" ToolTip="{Binding description}" >
+            <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseMove="image_MouseMove" ToolTip="{Binding description}">
                 <Image.Source>
                     <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="championIcon">
-            <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="ChampionRemove_MouseLeftButtonDown" >
+            <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="ChampionRemove_MouseLeftButtonDown">
                 <Image.Source>
                     <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                 </Image.Source>
@@ -36,7 +36,7 @@
         </DataTemplate>
         <DataTemplate x:Key="championSelect">
             <StackPanel Width="100" Orientation="Horizontal">
-                <Image Tag="{Binding}" Width="24" Height="24" MouseLeftButtonDown="ChampionAdd_MouseLeftButtonDown" >
+                <Image Tag="{Binding}" Width="24" Height="24" MouseLeftButtonDown="ChampionAdd_MouseLeftButtonDown">
                     <Image.Source>
                         <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                     </Image.Source>
@@ -55,14 +55,14 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="itemBlock">
-            <Expander Header="{Binding type}" IsExpanded="true" >
-                <StackPanel Tag="{Binding}" MouseUp="ItemBlock_MouseUp" >
+            <Expander Header="{Binding type}" IsExpanded="true">
+                <StackPanel Tag="{Binding}" MouseUp="ItemBlock_MouseUp">
                     <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                         <TextBlock Text="Block title: " />
                         <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
                         <Button Margin="25,0,0,0" Tag="{Binding}" Content="Delete" Click="DeleteItemBlock_Click" />
                     </StackPanel>
-                    <ListView Margin="5" MinHeight="68" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
+                    <ListView Margin="2" MinHeight="68" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
                 </StackPanel>
             </Expander>
         </DataTemplate>
@@ -70,26 +70,26 @@
             <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
         </DataTemplate>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="5">
         <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
-                <Button Margin="0,0,20,0" Content="Add new ittem set" Click="NewItemSet_Click" />
-                <Button Margin="0,0,20,0" Content="Save changes" Click="Save_Click" IsEnabled="{Binding IsChanged}" />
-                <Button Margin="0,0,20,0" Content="Undo all" Click="UndoAll_Click" IsEnabled="{Binding IsChanged}" />
-                <Button Margin="0,0,20,0" Content="Delete selected item set" Click="DeleteSelected_Click" />
-            </StackPanel>
-            <ScrollViewer Grid.Row="1" Grid.Column="0">
-                <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
-            </ScrollViewer>
-        <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Margin="0,0,0,10" Grid.ColumnSpan="3" Orientation="Horizontal">
+            <Button Margin="0,0,20,0" Content="Add new ittem set" Click="NewItemSet_Click" />
+            <Button Margin="0,0,20,0" Content="Save changes" Click="Save_Click" IsEnabled="{Binding IsChanged}" />
+            <Button Margin="0,0,20,0" Content="Undo all" Click="UndoAll_Click" IsEnabled="{Binding IsChanged}" />
+            <Button Margin="0,0,20,0" Content="Delete selected item set" Click="DeleteSelected_Click" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Grid.Column="0">
+            <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
+        </ScrollViewer>
+        <StackPanel Margin="15,10,0,0" Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
             <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                 <TextBlock Text="Title: " />
                 <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />

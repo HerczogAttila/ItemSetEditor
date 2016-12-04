@@ -426,7 +426,7 @@ namespace ItemSetEditor
             itemSetChanged(true);
         }
 
-        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void RemoveItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var item = (sender as Image).Tag as Item;
             foreach (var v in Selected.blocks)
