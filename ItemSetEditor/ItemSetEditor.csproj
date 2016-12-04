@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="DataModel\Config.cs" />
+    <Compile Include="DataModel\SortTag.cs" />
     <Compile Include="Json\ChampionData.cs" />
     <Compile Include="Json\ChampionDto.cs" />
     <Compile Include="Json\DDImage.cs" />

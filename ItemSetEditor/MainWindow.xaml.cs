@@ -21,7 +21,7 @@ namespace ItemSetEditor
     {
         public static ItemDto Items { get; set; }
         public static ChampionDto Champions { get; set; }
-        public static Config Config;
+        public static Config Config { get; set; }
 
         private static string PathItemSets = "Config\\ItemSets.json";
         private static string PathConfig = "ItemSetEditor\\Config.json";
@@ -38,9 +38,11 @@ namespace ItemSetEditor
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IEnumerable<ItemData> SortedItems { get; set; }
+        public Collection<SortTag> ItemTags { get; set; }
         public MapDto Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
+        public string SortItemName { get; set; }
         public bool IsChanged { get; set; }
 
         private WebClient WebClient = new WebClient();
@@ -107,6 +109,15 @@ namespace ItemSetEditor
                 if (cd != null)
                     sorted = sorted.Where(s => s.requiredChampion.Equals("") || s.requiredChampion.Equals(cd.name));
             }
+
+            SortItemName = SortItemName.ToLower();
+            if (!string.IsNullOrEmpty(SortItemName))
+                sorted = sorted.Where(s => s.name.ToLower().IndexOf(SortItemName) > -1);
+
+            var tag = ItemTags.FirstOrDefault(s => s.IsChecked == true);
+            if (tag != null)
+                if (!string.IsNullOrEmpty(tag.Tag))
+                    sorted = sorted.Where(s => s.Tags.Contains(tag.Tag));
 
             SortedItems = sorted;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SortedItems"));
@@ -208,13 +219,21 @@ namespace ItemSetEditor
                 isDownloaded = true;
             }
 
+            SortItemName = "";
+            ItemTags = new Collection<SortTag>();
+            ItemTags.Add(new SortTag() { IsChecked = true });
+
             Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
             Items.Deserialized();
-            foreach (ItemData s in Items.data.Values)
+            foreach (var v in Items.data.Values)
             {
-                DownloadImage(s.image, isDownloaded);
+                DownloadImage(v.image, isDownloaded);
 
-                s.Deserialized();
+                v.Deserialized();
+
+                foreach (var t in v.Tags)
+                    if (ItemTags.FirstOrDefault(s => s.Tag.Equals(t)) == null)
+                        ItemTags.Add(new SortTag() { Tag = t });
             }
         }
 
@@ -468,6 +487,18 @@ namespace ItemSetEditor
             foreach (var v in Selected.blocks)
                 v.items.Remove(item);
         }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            SortItems();
+        }
+
+        private void SelectItemTag_Checked(object sender, RoutedEventArgs e)
+        {
+            SortItems();
+        }
     }
 }
-//hősök és tárgyak szűrése név és kategória alapján
+//hősök szűrése név és kategória alapján
+//item tree
+//edit item sequence

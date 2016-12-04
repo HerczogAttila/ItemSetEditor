@@ -13,6 +13,9 @@
         <ItemsPanelTemplate x:Key="templateWrap">
             <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
         </ItemsPanelTemplate>
+        <DataTemplate x:Key="tags">
+            <RadioButton GroupName="itemTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectItemTag_Checked" />
+        </DataTemplate>
         <DataTemplate x:Key="item">
             <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="RemoveItem_MouseLeftButtonDown">
                 <Image.Source>
@@ -102,9 +105,24 @@
         </StackPanel>
         <TabControl Grid.Row="1" Grid.Column="2">
             <TabItem Header="Items">
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding SortedItems}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
-                </ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Expander Header="Sort">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Name: " />
+                                <TextBox Text="{Binding SortItemName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="150" TextChanged="TextBox_TextChanged" />
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding ItemTags}" ItemTemplate="{StaticResource tags}" ItemsPanel="{StaticResource templateWrap}" />
+                        </StackPanel>
+                    </Expander>
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding SortedItems}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
             <TabItem Header="Champions">
                 <ScrollViewer>
