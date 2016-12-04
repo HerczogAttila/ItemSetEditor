@@ -38,11 +38,14 @@ namespace ItemSetEditor
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IEnumerable<ItemData> SortedItems { get; set; }
+        public IEnumerable<ChampionData> SortedChampions { get; set; }
         public Collection<SortTag> ItemTags { get; set; }
+        public Collection<SortTag> ChampionTags { get; set; }
         public MapDto Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public string SortItemName { get; set; }
+        public string SortChampionName { get; set; }
         public bool IsChanged { get; set; }
 
         private WebClient WebClient = new WebClient();
@@ -121,6 +124,22 @@ namespace ItemSetEditor
 
             SortedItems = sorted;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SortedItems"));
+        }
+
+        private void SortChampions()
+        {
+            SortedChampions = Champions.data.Values;
+
+            SortChampionName = SortChampionName.ToLower();
+            if (!string.IsNullOrEmpty(SortChampionName))
+                SortedChampions = SortedChampions.Where(s => s.name.ToLower().IndexOf(SortChampionName) > -1);
+
+            var tag = ChampionTags.FirstOrDefault(s => s.IsChecked == true);
+            if (tag != null)
+                if (!string.IsNullOrEmpty(tag.Tag))
+                    SortedChampions = SortedChampions.Where(s => s.tags.Contains(tag.Tag));
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SortedChampions"));
         }
 
         private void SelectItemSet(ItemSet itemSet)
@@ -246,10 +265,18 @@ namespace ItemSetEditor
                 isDownloaded = true;
             }
 
+            SortChampionName = "";
+            ChampionTags = new Collection<SortTag>();
+            ChampionTags.Add(new SortTag() { IsChecked = true });
+
             Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
-            foreach (ChampionData s in Champions.data.Values)
+            foreach (var v in Champions.data.Values)
             {
-                DownloadImage(s.image, isDownloaded);
+                DownloadImage(v.image, isDownloaded);
+
+                foreach (var t in v.tags)
+                    if (ChampionTags.FirstOrDefault(s => s.Tag.Equals(t)) == null)
+                        ChampionTags.Add(new SortTag() { Tag = t });
             }
         }
 
@@ -317,6 +344,8 @@ namespace ItemSetEditor
             await ReadAndDownloadMaps();
             await ReadAndDownloadItems();
             await ReadAndDownloadChampions();
+
+            SortChampions();
 
             DataContext = this;
 
@@ -488,7 +517,7 @@ namespace ItemSetEditor
                 v.items.Remove(item);
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void SortItemName_TextChanged(object sender, TextChangedEventArgs e)
         {
             SortItems();
         }
@@ -497,8 +526,17 @@ namespace ItemSetEditor
         {
             SortItems();
         }
+
+        private void SortChampionName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            SortChampions();
+        }
+
+        private void SelectChampionTag_Checked(object sender, RoutedEventArgs e)
+        {
+            SortChampions();
+        }
     }
 }
-//hősök szűrése név és kategória alapján
 //item tree
 //edit item sequence

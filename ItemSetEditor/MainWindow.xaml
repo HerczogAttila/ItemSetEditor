@@ -13,8 +13,11 @@
         <ItemsPanelTemplate x:Key="templateWrap">
             <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
         </ItemsPanelTemplate>
-        <DataTemplate x:Key="tags">
+        <DataTemplate x:Key="itemTags">
             <RadioButton GroupName="itemTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectItemTag_Checked" />
+        </DataTemplate>
+        <DataTemplate x:Key="championTags">
+            <RadioButton GroupName="itemTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectChampionTag_Checked" />
         </DataTemplate>
         <DataTemplate x:Key="item">
             <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="RemoveItem_MouseLeftButtonDown">
@@ -114,9 +117,9 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Name: " />
-                                <TextBox Text="{Binding SortItemName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="150" TextChanged="TextBox_TextChanged" />
+                                <TextBox Text="{Binding SortItemName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="150" TextChanged="SortItemName_TextChanged" />
                             </StackPanel>
-                            <ItemsControl ItemsSource="{Binding ItemTags}" ItemTemplate="{StaticResource tags}" ItemsPanel="{StaticResource templateWrap}" />
+                            <ItemsControl ItemsSource="{Binding ItemTags}" ItemTemplate="{StaticResource itemTags}" ItemsPanel="{StaticResource templateWrap}" />
                         </StackPanel>
                     </Expander>
                     <ScrollViewer Grid.Row="1">
@@ -125,9 +128,24 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Champions">
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding Champions.data.Values}" ItemTemplate="{StaticResource championSelect}" ItemsPanel="{StaticResource templateWrap}" />
-                </ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Expander Header="Sort">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Name: " />
+                                <TextBox Text="{Binding SortChampionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="150" TextChanged="SortChampionName_TextChanged" />
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding ChampionTags}" ItemTemplate="{StaticResource championTags}" ItemsPanel="{StaticResource templateWrap}" />
+                        </StackPanel>
+                    </Expander>
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding SortedChampions}" ItemTemplate="{StaticResource championSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
         </TabControl>
         <Image Name="drag" Visibility="Collapsed" Width="48" Height="48" VerticalAlignment="Top" HorizontalAlignment="Left" IsHitTestVisible="False" Grid.ColumnSpan="3" Grid.RowSpan="2" />
