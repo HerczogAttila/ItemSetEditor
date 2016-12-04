@@ -14,25 +14,18 @@
             <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
         </ItemsPanelTemplate>
         <DataTemplate x:Key="item">
-            <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="Image_MouseLeftButtonDown" >
+            <Image Margin="5" Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="Image_MouseLeftButtonDown" >
                 <Image.Source>
                     <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="itemSelect">
-            <StackPanel Margin="5" Orientation="Horizontal">
-                <Image x:Name="image" Tag="{Binding}" Width="48" Height="48" MouseMove="image_MouseMove" ToolTip="{Binding description}" >
-                    <Image.Source>
-                        <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
-                    </Image.Source>
-                </Image>
-            </StackPanel>
-        </DataTemplate>
-        <DataTemplate x:Key="championId">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="0,0,10,0" Text="{Binding}" />
-            </StackPanel>
+            <Image Margin="5" Tag="{Binding}" Width="48" Height="48" MouseMove="image_MouseMove" ToolTip="{Binding description}" >
+                <Image.Source>
+                    <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                </Image.Source>
+            </Image>
         </DataTemplate>
         <DataTemplate x:Key="championIcon">
             <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="ChampionRemove_MouseLeftButtonDown" >
@@ -51,11 +44,6 @@
                 <TextBlock Text="{Binding name}" />
             </StackPanel>
         </DataTemplate>
-        <DataTemplate x:Key="mapId">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="0,0,10,0" Text="{Binding}" />
-            </StackPanel>
-        </DataTemplate>
         <DataTemplate x:Key="mapSelect">
             <StackPanel Margin="0,0,15,0" Orientation="Horizontal">
                 <CheckBox Tag="{Binding MapId}" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Checked="Map_Checked" Unchecked="Map_Unchecked" />
@@ -69,13 +57,12 @@
         <DataTemplate x:Key="itemBlock">
             <Expander Header="{Binding type}" IsExpanded="true" >
                 <StackPanel Tag="{Binding}" MouseUp="ItemBlock_MouseUp" >
-                    <!--<TextBlock Text="{Binding type, StringFormat=Type: {0} }" />-->
                     <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                         <TextBlock Text="Block title: " />
                         <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
                         <Button Margin="25,0,0,0" Tag="{Binding}" Content="Delete" Click="DeleteItemBlock_Click" />
                     </StackPanel>
-                    <ListView Margin="5" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
+                    <ListView Margin="5" MinHeight="68" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateHorizontal}" />
                 </StackPanel>
             </Expander>
         </DataTemplate>
@@ -102,41 +89,29 @@
             <ScrollViewer Grid.Row="1" Grid.Column="0">
                 <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
             </ScrollViewer>
-            <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
-                <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                    <TextBlock Text="Title: " />
-                    <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />
-                </StackPanel>
-                <!--<TextBlock Text="{Binding map, StringFormat=Map: {0} }"  />
-            <TextBlock Text="{Binding mode, StringFormat=Mode: {0} }" />
-            <TextBlock Text="{Binding type, StringFormat=Type: {0} }" />
-            <TextBlock Text="{Binding uid, StringFormat=UID: {0} }" />
-            <TextBlock Text="{Binding sortrank, StringFormat=Sortrank: {0} }" />
-            <TextBlock Text="{Binding priority, StringFormat=Priority: {0} }" />
-            <TextBlock Text="{Binding isGlobalForMaps, StringFormat=Is global for maps: {0} }" />-->
-                <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateHorizontal}" />
-                <!--<ItemsControl ItemsSource="{Binding associatedMaps}" ItemTemplate="{StaticResource mapId}" ItemsPanel="{StaticResource templateHorizontal}" />-->
-                <!--<TextBlock Text="{Binding isGlobalForChampions, StringFormat=Is global for champions: {0} }" />-->
-                <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding Champions}" ItemTemplate="{StaticResource championIcon}" ItemsPanel="{StaticResource templateHorizontal}" />
-                <!--<ItemsControl ItemsSource="{Binding associatedChampions}" ItemTemplate="{StaticResource championId}" ItemsPanel="{StaticResource templateHorizontal}" />-->
-                <TextBlock Margin="0,10,0,0" Text="Item blocks:" />
-                <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
-                <Button Content="New item block" Click="NewItemBlock_Click" HorizontalAlignment="Left" />
+        <StackPanel Name="PanelSelected" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
+            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                <TextBlock Text="Title: " />
+                <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />
             </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="2">
-            <TabControl>
-                <TabItem Header="Items">
-                    <ScrollViewer Height="500">
-                        <ItemsControl ItemsSource="{Binding Items.data.Values}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Champions">
-                    <ScrollViewer Height="500">
-                        <ItemsControl ItemsSource="{Binding Champions.data.Values}" ItemTemplate="{StaticResource championSelect}" ItemsPanel="{StaticResource templateWrap}" />
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
+            <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateHorizontal}" />
+            <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding Champions}" ItemTemplate="{StaticResource championIcon}" ItemsPanel="{StaticResource templateHorizontal}" />
+            <TextBlock Margin="0,10,0,0" Text="Item blocks:" />
+            <ItemsControl Margin="0,0,0,15" ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
+            <Button Content="New item block" Click="NewItemBlock_Click" HorizontalAlignment="Left" />
         </StackPanel>
+        <TabControl Grid.Row="1" Grid.Column="2">
+            <TabItem Header="Items">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Items.data.Values}" ItemTemplate="{StaticResource itemSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Champions">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Champions.data.Values}" ItemTemplate="{StaticResource championSelect}" ItemsPanel="{StaticResource templateWrap}" />
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
         <Image Name="drag" Visibility="Collapsed" Width="48" Height="48" VerticalAlignment="Top" HorizontalAlignment="Left" IsHitTestVisible="False" Grid.ColumnSpan="3" Grid.RowSpan="2" />
     </Grid>
 </Window>

@@ -49,6 +49,12 @@ namespace ItemSetEditor
             InitializeComponent();
         }
 
+        private Point MousePoint()
+        {
+            var p = System.Windows.Forms.Control.MousePosition;
+            return PointFromScreen(new Point(p.X, p.Y));
+        }
+
         private void DownloadImage(DDImage image)
         {
             if (File.Exists(image.Path))
@@ -374,6 +380,9 @@ namespace ItemSetEditor
                 Mouse.AddMouseMoveHandler(this, Item_MouseMove);
                 Mouse.AddMouseUpHandler(this, Item_MouseRelease);
 
+                var p = MousePoint();
+                drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
+
                 drag.Source = (sender as Image).Source;
                 Mouse.OverrideCursor = Cursors.No;
                 drag.Visibility = Visibility.Visible;
@@ -384,10 +393,10 @@ namespace ItemSetEditor
 
         private void Item_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = System.Windows.Forms.Control.MousePosition;
-            drag.Margin = new Thickness(p.X - 115, p.Y - 119, 0, 0);
+            var p = MousePoint();
+            drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
-            if(e.LeftButton == MouseButtonState.Released)
+            if (e.LeftButton == MouseButtonState.Released)
                 Item_MouseRelease(sender, e);
         }
 
@@ -398,6 +407,8 @@ namespace ItemSetEditor
 
             Mouse.RemoveMouseMoveHandler(this, Item_MouseMove);
             Mouse.RemoveMouseUpHandler(this, Item_MouseRelease);
+
+            Dragged = null;
         }
 
         #endregion
