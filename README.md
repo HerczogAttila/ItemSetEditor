@@ -10,4 +10,4 @@ To build: Visual Studio 2015.
 <a href="https://github.com/HerczogAttila/ItemSetEditor/files/631621/Release_0.1.zip">Version 0.1</a>
 
 # How to use
-Unzip the latest version in Leage of legends directory.
+Unzip the latest version in League of legends directory.
