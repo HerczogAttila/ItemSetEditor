@@ -60,6 +60,8 @@ namespace ItemSetEditor
         public MainWindow()
         {
             InitializeComponent();
+            ChampionTags = new Collection<SortTag>();
+            ItemTags = new Collection<SortTag>();
             VisLoading = Visibility.Visible;
             VisEditor = Visibility.Collapsed;
             VisSelected = Visibility.Collapsed;
@@ -271,7 +273,8 @@ namespace ItemSetEditor
             }
 
             SortItemName = "";
-            ItemTags = new Collection<SortTag>();
+
+            ItemTags.Clear();
             ItemTags.Add(new SortTag() { IsChecked = true });
 
             Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
@@ -307,7 +310,7 @@ namespace ItemSetEditor
             }
 
             SortChampionName = "";
-            ChampionTags = new Collection<SortTag>();
+            ChampionTags.Clear();
             ChampionTags.Add(new SortTag() { IsChecked = true });
 
             Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
