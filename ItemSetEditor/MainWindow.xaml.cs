@@ -11,6 +11,7 @@ using System;
 using System.Net;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ItemSetEditor
 {
@@ -41,19 +42,30 @@ namespace ItemSetEditor
         public IEnumerable<ChampionData> SortedChampions { get; set; }
         public Collection<SortTag> ItemTags { get; set; }
         public Collection<SortTag> ChampionTags { get; set; }
+        public Visibility VisLoading { get; set; }
+        public Visibility VisEditor { get; set; }
+        public Visibility VisSelected { get; set; }
         public MapDto Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public string SortItemName { get; set; }
         public string SortChampionName { get; set; }
+        public string ProgressText { get; set; }
         public bool IsChanged { get; set; }
 
         private WebClient WebClient = new WebClient();
-        private ItemData Dragged { get; set; }
+        private ItemData Dragged;
+        private Thread thread;
 
         public MainWindow()
         {
             InitializeComponent();
+            VisLoading = Visibility.Visible;
+            VisEditor = Visibility.Collapsed;
+            VisSelected = Visibility.Collapsed;
+            ProgressText = "Loading...";
+
+            DataContext = this;
         }
 
         private Point MousePoint()
@@ -62,12 +74,12 @@ namespace ItemSetEditor
             return PointFromScreen(new Point(p.X, p.Y));
         }
 
-        private void DownloadImage(DDImage image, bool update = false)
+        private async Task DownloadImage(DDImage image, bool update = false)
         {
             if (File.Exists(image.Path) && !update)
                 return;
 
-            WebClient.DownloadFile(image.Link, image.Path);
+            await WebClient.DownloadFileTaskAsync(image.Link, image.Path);
         }
 
         private async Task<string> Download(string link)
@@ -149,11 +161,15 @@ namespace ItemSetEditor
 
             if (Selected == null)
             {
-                PanelSelected.Visibility = Visibility.Collapsed;
+                VisSelected = Visibility.Collapsed;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("VisSelected"));
                 return;
             }
             else
-                PanelSelected.Visibility = Visibility.Visible;
+            {
+                VisSelected = Visibility.Visible;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("VisSelected"));
+            }
 
             foreach(MapData m in ItemSet.MapIds)
             {
@@ -185,11 +201,15 @@ namespace ItemSetEditor
         private async Task ReadConfig()
         {
             if (File.Exists(PathConfig))
+            {
                 Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PathConfig));
+                Config.Version = await LatestVersion();
+                SaveConfig();
+            }
             else
             {
                 Config = new Config() { Version = await LatestVersion(), Language = "en_US" };
-                
+
                 Config.IgnoredMapIds.Add(1);
                 Config.IgnoredMapIds.Add(8);
                 Config.IgnoredMapIds.Add(9);
@@ -215,17 +235,26 @@ namespace ItemSetEditor
             bool isDownloaded = false;
             if (!File.Exists(PathMaps))
             {
+                ProgressText = "Download maps...";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
+
                 await DownloadAndSave(LinkMaps, PathMaps);
                 isDownloaded = true;
             }
 
             Maps = JsonConvert.DeserializeObject<MapDto>(File.ReadAllText(PathMaps));
-            foreach(MapData s in Maps.data.Values)
+            foreach (var v in Maps.data.Values)
             {
-                if(!Config.IgnoredMapIds.Contains(s.MapId))
-                    ItemSet.MapIds.Add(s);
+                if(!Config.IgnoredMapIds.Contains(v.MapId))
+                    ItemSet.MapIds.Add(v);
+            }
 
-                DownloadImage(s.image, isDownloaded);
+            MapData i;
+            foreach (var v in Maps.data.Values.Select(s => s.image.sprite).Distinct())
+            {
+                i = Maps.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                if (i != null)
+                    await DownloadImage(i.image, isDownloaded);
             }
         }
 
@@ -234,6 +263,9 @@ namespace ItemSetEditor
             bool isDownloaded = false;
             if (!File.Exists(PathItems))
             {
+                ProgressText = "Download items...";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
+
                 await DownloadAndSave(LinkItems, PathItems);
                 isDownloaded = true;
             }
@@ -246,13 +278,19 @@ namespace ItemSetEditor
             Items.Deserialized();
             foreach (var v in Items.data.Values)
             {
-                DownloadImage(v.image, isDownloaded);
-
                 v.Deserialized();
 
                 foreach (var t in v.Tags)
                     if (ItemTags.FirstOrDefault(s => s.Tag.Equals(t)) == null)
                         ItemTags.Add(new SortTag() { Tag = t });
+            }
+
+            ItemData i;
+            foreach (var v in Items.data.Values.Select(s => s.image.sprite).Distinct())
+            {
+                i = Items.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                if (i != null)
+                    await DownloadImage(i.image, isDownloaded);
             }
         }
 
@@ -261,6 +299,9 @@ namespace ItemSetEditor
             bool isDownloaded = false;
             if (!File.Exists(PathChampions))
             {
+                ProgressText = "Download champions...";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
+
                 await DownloadAndSave(LinkChampions, PathChampions);
                 isDownloaded = true;
             }
@@ -272,11 +313,17 @@ namespace ItemSetEditor
             Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
             foreach (var v in Champions.data.Values)
             {
-                DownloadImage(v.image, isDownloaded);
-
                 foreach (var t in v.tags)
                     if (ChampionTags.FirstOrDefault(s => s.Tag.Equals(t)) == null)
                         ChampionTags.Add(new SortTag() { Tag = t });
+            }
+
+            ChampionData i;
+            foreach (var v in Champions.data.Values.Select(s => s.image.sprite).Distinct())
+            {
+                i = Champions.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                if (i != null)
+                    await DownloadImage(i.image, isDownloaded);
             }
         }
 
@@ -334,22 +381,30 @@ namespace ItemSetEditor
             itemSetChanged(true);
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (string s in new string[] { "Config", "ItemSetEditor" })
-                if (!Directory.Exists(s))
-                    Directory.CreateDirectory(s);
+            thread = new Thread(new ThreadStart(async ()=>
+            {
+                foreach (string s in new string[] { "Config", "ItemSetEditor" })
+                    if (!Directory.Exists(s))
+                        Directory.CreateDirectory(s);
 
-            await ReadConfig();
-            await ReadAndDownloadMaps();
-            await ReadAndDownloadItems();
-            await ReadAndDownloadChampions();
+                await ReadConfig();
+                await ReadAndDownloadMaps();
+                await ReadAndDownloadItems();
+                await ReadAndDownloadChampions();
 
-            SortChampions();
+                SortChampions();
 
-            DataContext = this;
+                UndoAll_Click(this, new RoutedEventArgs());
 
-            UndoAll_Click(this, new RoutedEventArgs());
+                VisLoading = Visibility.Collapsed;
+                VisEditor = Visibility.Visible;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("VisLoading"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("VisEditor"));
+            }));
+
+            thread.Start();
         }
 
         private void Title_KeyDown(object sender, KeyEventArgs e)
@@ -590,6 +645,12 @@ namespace ItemSetEditor
         {
             if (Dragged != null)
                 Mouse.OverrideCursor = Cursors.None;
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (thread != null)
+                thread.Abort();
         }
     }
 }
