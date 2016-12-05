@@ -9,7 +9,7 @@ To run: .NET Framework <a href="https://www.microsoft.com/hu-hu/download/details
 To build: Visual Studio 2015.
 
 # Latest version
-<a href="https://github.com/HerczogAttila/ItemSetEditor/files/631621/Release_0.1.zip">Version 0.1</a>
+<a href="https://github.com/HerczogAttila/ItemSetEditor/releases/latest">Latest Version</a>
 
 # How to use
 Unzip the latest version in League of legends directory.
