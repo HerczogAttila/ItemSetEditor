@@ -457,7 +457,7 @@ namespace ItemSetEditor
 
         #region drag
 
-        private void image_MouseMove(object sender, MouseEventArgs e)
+        private void ItemDrag_MouseMove(object sender, MouseEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed && Dragged == null)
             {
@@ -510,13 +510,6 @@ namespace ItemSetEditor
             itemSetChanged(true);
         }
 
-        private void RemoveItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var item = (sender as Image).Tag as Item;
-            foreach (var v in Selected.blocks)
-                v.items.Remove(item);
-        }
-
         private void SortItemName_TextChanged(object sender, TextChangedEventArgs e)
         {
             SortItems();
@@ -536,7 +529,72 @@ namespace ItemSetEditor
         {
             SortChampions();
         }
+
+        private void BlockItemDrag_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Dragged != null)
+                Mouse.OverrideCursor = Cursors.None;
+
+            if (e.LeftButton == MouseButtonState.Pressed && Dragged == null)
+            {
+                Mouse.AddMouseMoveHandler(this, Item_MouseMove);
+                Mouse.AddMouseUpHandler(this, Item_MouseRelease);
+
+                var p = MousePoint();
+                drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
+
+                drag.Source = (sender as Image).Source;
+                Mouse.OverrideCursor = Cursors.No;
+                drag.Visibility = Visibility.Visible;
+
+                var item = (sender as Image).Tag as Item;
+                foreach (var v in Selected.blocks)
+                    v.items.Remove(item);
+
+                Dragged = Items.data.Values.FirstOrDefault(s => s.id.Equals(item.id + ""));
+            }
+        }
+
+        private void InsertItem(object sender, MouseButtonEventArgs e)
+        {
+            if (Dragged == null)
+                return;
+
+            var item = (sender as Image).Tag as Item;
+            var block = Selected.blocks.FirstOrDefault(s => s.items.Contains(item));
+            if (block == null)
+                return;
+
+            var index = block.items.IndexOf(item); 
+
+            block.items.Insert(index, new Item() { id = int.Parse(Dragged.id), count = 1 });
+
+            Dragged = null;
+
+            itemSetChanged(true);
+        }
+
+        private void BlockItem_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (Dragged != null)
+                Mouse.OverrideCursor = Cursors.No;
+        }
+
+        private void ItemBlock_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (Dragged != null)
+                Mouse.OverrideCursor = Cursors.No;
+
+            Title = "nem";
+        }
+
+        private void ItemBlock_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Dragged != null)
+                Mouse.OverrideCursor = Cursors.None;
+
+            Title = "igen";
+        }
     }
 }
 //item tree
-//edit item sequence
