@@ -584,16 +584,12 @@ namespace ItemSetEditor
         {
             if (Dragged != null)
                 Mouse.OverrideCursor = Cursors.No;
-
-            Title = "nem";
         }
 
         private void ItemBlock_MouseMove(object sender, MouseEventArgs e)
         {
             if (Dragged != null)
                 Mouse.OverrideCursor = Cursors.None;
-
-            Title = "igen";
         }
     }
 }

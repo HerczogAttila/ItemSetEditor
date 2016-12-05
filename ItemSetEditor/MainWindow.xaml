@@ -7,9 +7,6 @@
         mc:Ignorable="d"
         Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <!--<ItemsPanelTemplate x:Key="templateHorizontal">
-            <StackPanel Orientation="Horizontal" />
-        </ItemsPanelTemplate>-->
         <ItemsPanelTemplate x:Key="templateWrap">
             <WrapPanel FlowDirection="LeftToRight" IsItemsHost="true" />
         </ItemsPanelTemplate>
