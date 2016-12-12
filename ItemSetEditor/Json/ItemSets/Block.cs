@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace ItemSetEditor
@@ -7,13 +8,14 @@ namespace ItemSetEditor
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public string type { get; set; }
-        public ObservableCollection<Item> items { get; private set; }
+        public ObservableCollection<Item> Items { get; private set; }
+        [JsonProperty("type")]
+        public string BlockType { get; set; }
 
         public Block()
         {
-            type = "";
-            items = new ObservableCollection<Item>();
+            Items = new ObservableCollection<Item>();
+            BlockType = "";
         }
 
         public void OnChanged(string name)

@@ -8,42 +8,44 @@ namespace ItemSetEditor
     public class ItemSet : INotifyPropertyChanged
     {
         [JsonIgnore]
-        public static ObservableCollection<MapData> MapIds { get; set; } = new ObservableCollection<MapData>();
+        public static ObservableCollection<MapData> MapIds { get; private set; } = new ObservableCollection<MapData>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         [JsonIgnore]
         public ObservableCollection<ChampionData> Champions { get; private set; }
 
-        public ObservableCollection<Block> blocks { get; set; }
-        public ObservableCollection<int> associatedMaps { get; private set; }
-        public ObservableCollection<int> associatedChampions { get; private set; }
-        public string mode { get; set; }
-        public string type { get; set; }
-        public string uid { get; set; }
-        public string title { get; set; }
-        public string map { get; set; }
-        public int sortrank { get; set; }
-        public bool priority { get; set; }
-        public bool isGlobalForMaps { get; set; }
-        public bool isGlobalForChampions { get; set; }
+        public ObservableCollection<Block> Blocks { get; private set; }
+        public ObservableCollection<int> AssociatedMaps { get; private set; }
+        public ObservableCollection<int> AssociatedChampions { get; private set; }
+        public string Mode { get; set; }
+        [JsonProperty("type")]
+        public string ItemType { get; set; }
+        [JsonProperty("uid")]
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string Map { get; set; }
+        public int SortRank { get; set; }
+        public bool Priority { get; set; }
+        public bool IsGlobalForMaps { get; set; }
+        public bool IsGlobalForChampions { get; set; }
 
         public ItemSet()
         {
             Champions = new ObservableCollection<ChampionData>();
 
-            blocks = new ObservableCollection<Block>();
-            associatedMaps = new ObservableCollection<int>();
-            associatedChampions = new ObservableCollection<int>();
-            mode = "any";
-            type = "custom";
-            uid = CodeGenerator.GenerateUID();
-            title = "";
-            map = "any";
-            sortrank = 0;
-            priority = false;
-            isGlobalForMaps = true;
-            isGlobalForChampions = false;
+            Blocks = new ObservableCollection<Block>();
+            AssociatedMaps = new ObservableCollection<int>();
+            AssociatedChampions = new ObservableCollection<int>();
+            Mode = "any";
+            ItemType = "custom";
+            Id = CodeGenerator.Generate();
+            Title = "";
+            Map = "any";
+            SortRank = 0;
+            Priority = false;
+            IsGlobalForMaps = true;
+            IsGlobalForChampions = false;
         }
 
         public void OnChanged(string name)
@@ -54,9 +56,9 @@ namespace ItemSetEditor
         public void Deserialized()
         {
             ChampionData champion;
-            foreach(int i in associatedChampions)
+            foreach(int i in AssociatedChampions)
             {
-                champion = MainWindow.Champions.data.Values.FirstOrDefault(s => s.key == i);
+                champion = MainWindow.Champions.Data.Values.FirstOrDefault(s => s.Key == i);
                 if (champion != null)
                     Champions.Add(champion);
             }

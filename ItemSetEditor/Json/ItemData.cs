@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -6,42 +7,42 @@ namespace ItemSetEditor
 {
     public class ItemData
     {
-        public Dictionary<string, bool> maps { get; private set; }
+        public Dictionary<string, bool> Maps { get; private set; }
         public Collection<string> Tags { get; private set; }
-        public DDImage image { get; set; }
-        public Gold gold { get; set; }
-        public string requiredChampion { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public string id { get; set; }
-        public bool hideFromAll { get; set; }
+        public DDImage Image { get; set; }
+        public Gold Gold { get; set; }
+        public string RequiredChampion { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Id { get; set; }
+        public bool HideFromAll { get; set; }
 
         public ItemData()
         {
-            maps = new Dictionary<string, bool>();
+            Maps = new Dictionary<string, bool>();
             Tags = new Collection<string>();
-            image = new DDImage();
-            gold = new Gold();
-            requiredChampion = "";
-            name = "";
-            description = "";
-            id = "0";
+            Image = new DDImage();
+            Gold = new Gold();
+            RequiredChampion = "";
+            Name = "";
+            Description = "";
+            Id = "0";
         }
 
         public void Deserialized()
         {
-            foreach (var v in maps.Where(s => s.Value == false).ToArray())
-                maps.Remove(v.Key);
+            foreach (var v in Maps.Where(s => s.Value == false).ToArray())
+                Maps.Remove(v.Key);
 
-            description = name + "(" + id + ")" + "\r\n" + description;
-            description = description.Replace("<br>", "\r\n");
-            int start = description.IndexOf("<"), end;
+            Description = Name + "(" + Id + ")" + "\r\n" + Description;
+            Description = Description.Replace("<br>", "\r\n");
+            int start = Description.IndexOf("<", StringComparison.OrdinalIgnoreCase), end;
             while (start != -1)
             {
-                end = description.IndexOf(">", start);
-                description = description.Remove(start, end - start + 1);
+                end = Description.IndexOf(">", start, StringComparison.OrdinalIgnoreCase);
+                Description = Description.Remove(start, end - start + 1);
 
-                start = description.IndexOf("<");
+                start = Description.IndexOf("<", StringComparison.OrdinalIgnoreCase);
             }
         }
     }

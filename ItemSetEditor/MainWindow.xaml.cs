@@ -11,6 +11,7 @@ using System.Net;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Threading;
+using System.Globalization;
 
 namespace ItemSetEditor
 {
@@ -19,32 +20,31 @@ namespace ItemSetEditor
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged, IDisposable
     {
-        public static ItemDto Items { get; set; }
-        public static ChampionDto Champions { get; set; }
+        public static Items Items { get; set; }
+        public static Champions Champions { get; set; }
         public static Config Config { get; set; }
 
         private static string PathItemSets = "Config\\ItemSets.json";
         private static string PathConfig = "ItemSetEditor\\Config.json";
         private static string LinkVersions = "https://ddragon.leagueoflegends.com/api/versions.json";
 
-        private string LinkMaps => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/map.json";
-        private string LinkChampions => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/champion.json";
-        private string LinkItems => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/item.json";
-        private string LinkSprites => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/img/sprite/";
-        private string PathMaps => "ItemSetEditor\\maps_" + Config.Version + "_" + Config.Language + ".json";
-        private string PathChampions => "ItemSetEditor\\champions_" + Config.Version + "_" + Config.Language + ".json";
-        private string PathItems => "ItemSetEditor\\items_" + Config.Version + "_" + Config.Language + ".json";
+        private static string LinkMaps => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/map.json";
+        private static string LinkChampions => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/champion.json";
+        private static string LinkItems => "http://ddragon.leagueoflegends.com/cdn/" + Config.Version + "/data/" + Config.Language + "/item.json";
+        private static string PathMaps => "ItemSetEditor\\maps_" + Config.Version + "_" + Config.Language + ".json";
+        private static string PathChampions => "ItemSetEditor\\champions_" + Config.Version + "_" + Config.Language + ".json";
+        private static string PathItems => "ItemSetEditor\\items_" + Config.Version + "_" + Config.Language + ".json";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IEnumerable<ItemData> SortedItems { get; set; }
-        public IEnumerable<ChampionData> SortedChampions { get; set; }
-        public Collection<SortTag> ItemTags { get; set; }
-        public Collection<SortTag> ChampionTags { get; set; }
+        public IEnumerable<ItemData> SortedItems { get; private set; }
+        public IEnumerable<ChampionData> SortedChampions { get; private set; }
+        public Collection<SortTag> ItemTags { get; private set; }
+        public Collection<SortTag> ChampionTags { get; private set; }
         public Visibility VisLoading { get; set; }
         public Visibility VisEditor { get; set; }
         public Visibility VisSelected { get; set; }
-        public MapDto Maps { get; set; }
+        public Maps Maps { get; set; }
         public ItemSets ItemSets { get; set; }
         public ItemSet Selected { get; set; }
         public string SortItemName { get; set; }
@@ -90,21 +90,20 @@ namespace ItemSetEditor
 
         private void SortItems()
         {
-            var sorted = Items.data.Values.Where(s => !s.hideFromAll);
-            foreach (var v in Selected.associatedMaps)
-                sorted = sorted.Where(s => s.maps.ContainsKey(v + ""));
+            var sorted = Items.Data.Values.Where(s => !s.HideFromAll);
+            foreach (var v in Selected.AssociatedMaps)
+                sorted = sorted.Where(s => s.Maps.ContainsKey(v + ""));
 
             ChampionData cd;
-            foreach (var v in Selected.associatedChampions)
+            foreach (var v in Selected.AssociatedChampions)
             {
-                cd = Champions.data.Values.FirstOrDefault(s => s.key.Equals(v));
+                cd = Champions.Data.Values.FirstOrDefault(s => s.Key.Equals(v));
                 if (cd != null)
-                    sorted = sorted.Where(s => s.requiredChampion.Equals("") || s.requiredChampion.Equals(cd.name));
+                    sorted = sorted.Where(s => string.IsNullOrEmpty(s.RequiredChampion) || s.RequiredChampion.Equals(cd.Name));
             }
 
-            SortItemName = SortItemName.ToLower();
             if (!string.IsNullOrEmpty(SortItemName))
-                sorted = sorted.Where(s => s.name.ToLower().IndexOf(SortItemName) > -1);
+                sorted = sorted.Where(s => s.Name.IndexOf(SortItemName, StringComparison.OrdinalIgnoreCase) > -1);
 
             var tag = ItemTags.FirstOrDefault(s => s.IsChecked == true);
             if (tag != null)
@@ -117,16 +116,15 @@ namespace ItemSetEditor
 
         private void SortChampions()
         {
-            SortedChampions = Champions.data.Values;
+            SortedChampions = Champions.Data.Values;
 
-            SortChampionName = SortChampionName.ToLower();
             if (!string.IsNullOrEmpty(SortChampionName))
-                SortedChampions = SortedChampions.Where(s => s.name.ToLower().IndexOf(SortChampionName) > -1);
+                SortedChampions = SortedChampions.Where(s => s.Name.IndexOf(SortChampionName, StringComparison.OrdinalIgnoreCase) > -1);
 
             var tag = ChampionTags.FirstOrDefault(s => s.IsChecked == true);
             if (tag != null)
                 if (!string.IsNullOrEmpty(tag.Tag))
-                    SortedChampions = SortedChampions.Where(s => s.tags.Contains(tag.Tag));
+                    SortedChampions = SortedChampions.Where(s => s.Tags.Contains(tag.Tag));
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SortedChampions"));
         }
@@ -150,7 +148,7 @@ namespace ItemSetEditor
 
             foreach(MapData m in ItemSet.MapIds)
             {
-                m.IsChecked = Selected.associatedMaps.Contains(m.MapId);
+                m.IsChecked = Selected.AssociatedMaps.Contains(m.MapId);
                 m.OnChanged("IsChecked");
             }
 
@@ -168,7 +166,7 @@ namespace ItemSetEditor
             if (File.Exists(PathItemSets))
             {
                 ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(PathItemSets));
-                foreach (ItemSet i in ItemSets.itemSets)
+                foreach (ItemSet i in ItemSets.Sets)
                     i.Deserialized();
             }
             else
@@ -219,19 +217,19 @@ namespace ItemSetEditor
                 isDownloaded = true;
             }
 
-            Maps = JsonConvert.DeserializeObject<MapDto>(File.ReadAllText(PathMaps));
-            foreach (var v in Maps.data.Values)
+            Maps = JsonConvert.DeserializeObject<Maps>(File.ReadAllText(PathMaps));
+            foreach (var v in Maps.Data.Values)
             {
                 if(!Config.IgnoredMapIds.Contains(v.MapId))
                     ItemSet.MapIds.Add(v);
             }
 
             MapData i;
-            foreach (var v in Maps.data.Values.Select(s => s.image.sprite).Distinct())
+            foreach (var v in Maps.Data.Values.Select(s => s.Image.Sprite).Distinct())
             {
-                i = Maps.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                i = Maps.Data.Values.FirstOrDefault(s => s.Image.Sprite.Equals(v));
                 if (i != null)
-                    await DownloadImage(i.image, isDownloaded);
+                    await DownloadImage(i.Image, isDownloaded);
             }
         }
 
@@ -252,9 +250,9 @@ namespace ItemSetEditor
             ItemTags.Clear();
             ItemTags.Add(new SortTag() { IsChecked = true });
 
-            Items = JsonConvert.DeserializeObject<ItemDto>(File.ReadAllText(PathItems));
+            Items = JsonConvert.DeserializeObject<Items>(File.ReadAllText(PathItems));
             Items.Deserialized();
-            foreach (var v in Items.data.Values)
+            foreach (var v in Items.Data.Values)
             {
                 v.Deserialized();
 
@@ -264,11 +262,11 @@ namespace ItemSetEditor
             }
 
             ItemData i;
-            foreach (var v in Items.data.Values.Select(s => s.image.sprite).Distinct())
+            foreach (var v in Items.Data.Values.Select(s => s.Image.Sprite).Distinct())
             {
-                i = Items.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                i = Items.Data.Values.FirstOrDefault(s => s.Image.Sprite.Equals(v));
                 if (i != null)
-                    await DownloadImage(i.image, isDownloaded);
+                    await DownloadImage(i.Image, isDownloaded);
             }
         }
 
@@ -288,24 +286,24 @@ namespace ItemSetEditor
             ChampionTags.Clear();
             ChampionTags.Add(new SortTag() { IsChecked = true });
 
-            Champions = JsonConvert.DeserializeObject<ChampionDto>(File.ReadAllText(PathChampions));
-            foreach (var v in Champions.data.Values)
+            Champions = JsonConvert.DeserializeObject<Champions>(File.ReadAllText(PathChampions));
+            foreach (var v in Champions.Data.Values)
             {
-                foreach (var t in v.tags)
+                foreach (var t in v.Tags)
                     if (ChampionTags.FirstOrDefault(s => s.Tag.Equals(t)) == null)
                         ChampionTags.Add(new SortTag() { Tag = t });
             }
 
             ChampionData i;
-            foreach (var v in Champions.data.Values.Select(s => s.image.sprite).Distinct())
+            foreach (var v in Champions.Data.Values.Select(s => s.Image.Sprite).Distinct())
             {
-                i = Champions.data.Values.FirstOrDefault(s => s.image.sprite.Equals(v));
+                i = Champions.Data.Values.FirstOrDefault(s => s.Image.Sprite.Equals(v));
                 if (i != null)
-                    await DownloadImage(i.image, isDownloaded);
+                    await DownloadImage(i.Image, isDownloaded);
             }
         }
 
-        private void SaveConfig()
+        private static void SaveConfig()
         {
             File.WriteAllText(PathConfig, JsonConvert.SerializeObject(Config));
         }
@@ -319,12 +317,12 @@ namespace ItemSetEditor
 
         private void NewItemSet_Click(object sender, RoutedEventArgs e)
         {
-            var newSet = new ItemSet() { title = "Item set " + ItemSets.itemSets.Count };
-            newSet.blocks.Add(new Block() { type = "Item block 1" });
-            while (ItemSets.itemSets.FirstOrDefault(s => s.uid == newSet.uid) != null) {
-                newSet.uid = CodeGenerator.GenerateUID();
+            var newSet = new ItemSet() { Title = "Item set " + ItemSets.Sets.Count };
+            newSet.Blocks.Add(new Block() { BlockType = "Item block 1" });
+            while (ItemSets.Sets.FirstOrDefault(s => s.Id == newSet.Id) != null) {
+                newSet.Id = CodeGenerator.Generate();
             }
-            ItemSets.itemSets.Add(newSet);
+            ItemSets.Sets.Add(newSet);
             SelectItemSet(newSet);
             itemSetChanged(true);
         }
@@ -340,8 +338,8 @@ namespace ItemSetEditor
             ReadItemSets();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ItemSets"));
 
-            if (ItemSets.itemSets.Count > 0)
-                SelectItemSet(ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1));
+            if (ItemSets.Sets.Count > 0)
+                SelectItemSet(ItemSets.Sets.ElementAt(ItemSets.Sets.Count - 1));
             else
                 SelectItemSet(null);
 
@@ -350,9 +348,9 @@ namespace ItemSetEditor
 
         private void DeleteSelected_Click(object sender, RoutedEventArgs e)
         {
-            ItemSets.itemSets.Remove(Selected);
-            if (ItemSets.itemSets.Count > 0)
-                SelectItemSet(ItemSets.itemSets.ElementAt(ItemSets.itemSets.Count - 1));
+            ItemSets.Sets.Remove(Selected);
+            if (ItemSets.Sets.Count > 0)
+                SelectItemSet(ItemSets.Sets.ElementAt(ItemSets.Sets.Count - 1));
             else
                 SelectItemSet(null);
 
@@ -389,7 +387,7 @@ namespace ItemSetEditor
         {
             if(e.Key == Key.Enter)
             {
-                Selected.title = (sender as TextBox).Text;
+                Selected.Title = (sender as TextBox).Text;
                 Selected.OnChanged("title");
                 itemSetChanged(true);
             }
@@ -397,16 +395,16 @@ namespace ItemSetEditor
 
         private void Map_Checked(object sender, RoutedEventArgs e)
         {
-            var id = int.Parse((sender as CheckBox).Tag.ToString());
-            if (!Selected.associatedMaps.Contains(id))
+            var id = int.Parse((sender as CheckBox).Tag.ToString(), CultureInfo.GetCultureInfo("en-US").NumberFormat);
+            if (!Selected.AssociatedMaps.Contains(id))
             {
-                if (Selected.associatedMaps.Count == 0)
+                if (Selected.AssociatedMaps.Count == 0)
                 {
-                    Selected.isGlobalForMaps = false;
+                    Selected.IsGlobalForMaps = false;
                     Selected.OnChanged("isGlobalForMaps");
                 }
 
-                Selected.associatedMaps.Add(id);
+                Selected.AssociatedMaps.Add(id);
                 itemSetChanged(true);
                 SortItems();
             }
@@ -414,14 +412,14 @@ namespace ItemSetEditor
 
         private void Map_Unchecked(object sender, RoutedEventArgs e)
         {
-            var id = int.Parse((sender as CheckBox).Tag.ToString());
-            Selected.associatedMaps.Remove(id);
+            var id = int.Parse((sender as CheckBox).Tag.ToString(), CultureInfo.GetCultureInfo("en-US").NumberFormat);
+            Selected.AssociatedMaps.Remove(id);
             itemSetChanged(true);
             SortItems();
 
-            if (Selected.associatedMaps.Count == 0)
+            if (Selected.AssociatedMaps.Count == 0)
             {
-                Selected.isGlobalForMaps = true;
+                Selected.IsGlobalForMaps = true;
                 Selected.OnChanged("isGlobalForMaps");
             }
         }
@@ -432,7 +430,7 @@ namespace ItemSetEditor
             {
                 var txt = (sender as TextBox);
                 var itemBlock = txt.Tag as Block;
-                itemBlock.type = txt.Text;
+                itemBlock.BlockType = txt.Text;
                 itemBlock.OnChanged("type");
                 itemSetChanged(true);
             }
@@ -440,7 +438,7 @@ namespace ItemSetEditor
 
         private void NewItemBlock_Click(object sender, RoutedEventArgs e)
         {
-            Selected.blocks.Add(new Block() { type = "Item block " + (Selected.blocks.Count() + 1) });
+            Selected.Blocks.Add(new Block() { BlockType = "Item block " + (Selected.Blocks.Count() + 1) });
             itemSetChanged(true);
         }
 
@@ -449,7 +447,7 @@ namespace ItemSetEditor
             var itemBlock = (sender as Control).Tag as Block;
             if (itemBlock != null)
             {
-                Selected.blocks.Remove(itemBlock);
+                Selected.Blocks.Remove(itemBlock);
                 itemSetChanged(true);
             }
         }
@@ -457,12 +455,12 @@ namespace ItemSetEditor
         private void ChampionRemove_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var champion = (sender as Image).Tag as ChampionData;
-            Selected.associatedChampions.Remove(champion.key);
+            Selected.AssociatedChampions.Remove(champion.Key);
             Selected.Champions.Remove(champion);
 
-            if (Selected.associatedChampions.Count == 0)
+            if (Selected.AssociatedChampions.Count == 0)
             {
-                Selected.isGlobalForChampions = true;
+                Selected.IsGlobalForChampions = true;
                 Selected.OnChanged("isGlobalForChampions");
             }
 
@@ -473,15 +471,15 @@ namespace ItemSetEditor
         private void ChampionAdd_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var champion = (sender as Image).Tag as ChampionData;
-            if (!Selected.associatedChampions.Contains(champion.key))
+            if (!Selected.AssociatedChampions.Contains(champion.Key))
             {
-                if (Selected.associatedChampions.Count == 0)
+                if (Selected.AssociatedChampions.Count == 0)
                 {
-                    Selected.isGlobalForChampions = false;
+                    Selected.IsGlobalForChampions = false;
                     Selected.OnChanged("isGlobalForChampions");
                 }
 
-                Selected.associatedChampions.Add(champion.key);
+                Selected.AssociatedChampions.Add(champion.Key);
                 Selected.Champions.Add(champion);
                 itemSetChanged(true);
                 SortItems();
@@ -500,11 +498,12 @@ namespace ItemSetEditor
                 var p = e.GetPosition(this);
                 drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
-                drag.Source = (sender as Image).Source;
+                var img = sender as Image;
+                drag.Source = img.Source;
                 Mouse.OverrideCursor = Cursors.No;
                 drag.Visibility = Visibility.Visible;
 
-                Dragged = (sender as Image).Tag as ItemData;
+                Dragged = img.Tag as ItemData;
             }
         }
 
@@ -536,7 +535,7 @@ namespace ItemSetEditor
                 return;
 
             var block = (sender as StackPanel).Tag as Block;
-            block.items.Add(new Item() { id = int.Parse(Dragged.id), count = 1 });
+            block.Items.Add(new Item() { Id = int.Parse(Dragged.Id, CultureInfo.GetCultureInfo("en-US").NumberFormat), Count = 1 });
 
             Dragged = null;
 
@@ -576,15 +575,16 @@ namespace ItemSetEditor
                 var p = e.GetPosition(this);
                 drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
-                drag.Source = (sender as Image).Source;
+                var img = sender as Image;
+                drag.Source = img.Source;
                 Mouse.OverrideCursor = Cursors.No;
                 drag.Visibility = Visibility.Visible;
 
-                var item = (sender as Image).Tag as Item;
-                foreach (var v in Selected.blocks)
-                    v.items.Remove(item);
+                var item = img.Tag as Item;
+                foreach (var v in Selected.Blocks)
+                    v.Items.Remove(item);
 
-                Dragged = Items.data.Values.FirstOrDefault(s => s.id.Equals(item.id + ""));
+                Dragged = Items.Data.Values.FirstOrDefault(s => s.Id.Equals(item.Id + ""));
             }
         }
 
@@ -594,13 +594,13 @@ namespace ItemSetEditor
                 return;
 
             var item = (sender as Image).Tag as Item;
-            var block = Selected.blocks.FirstOrDefault(s => s.items.Contains(item));
+            var block = Selected.Blocks.FirstOrDefault(s => s.Items.Contains(item));
             if (block == null)
                 return;
 
-            var index = block.items.IndexOf(item); 
+            var index = block.Items.IndexOf(item); 
 
-            block.items.Insert(index, new Item() { id = int.Parse(Dragged.id), count = 1 });
+            block.Items.Insert(index, new Item() { Id = int.Parse(Dragged.Id, CultureInfo.GetCultureInfo("en-US").NumberFormat), Count = 1 });
 
             Dragged = null;
 

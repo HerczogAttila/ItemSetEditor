@@ -15,15 +15,16 @@ namespace ItemSetEditor
 
             return ve;
         }
-        public static string GenerateUID()
+        public static string Generate()
         {
             return Generate(8, 4, 4, 4, 12);
         }
         public static string Generate(params int[] pars)
         {
             string ve = "LOL";
-            foreach (int i in pars)
-                ve += "_" + GeneratePart(i);
+            if (pars != null)
+                foreach (int i in pars)
+                    ve += "_" + GeneratePart(i);
 
             return ve;
         }

@@ -1,16 +1,18 @@
-﻿using System.Collections.ObjectModel;
+﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 
 namespace ItemSetEditor
 {
     public class ItemSets
     {
-        public ObservableCollection<ItemSet> itemSets { get; private set; }
-        public long timeStamp { get; set; }
+        [JsonProperty("itemSets")]
+        public ObservableCollection<ItemSet> Sets { get; private set; }
+        public long Timestamp { get; set; }
 
         public ItemSets()
         {
-            itemSets = new ObservableCollection<ItemSet>();
-            timeStamp = 0;
+            Sets = new ObservableCollection<ItemSet>();
+            Timestamp = 0;
         }
     }
 }

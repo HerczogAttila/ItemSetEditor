@@ -4,19 +4,19 @@ namespace ItemSetEditor
 {
     public class ChampionData
     {
-        public Collection<string> tags { get; private set; }
-        public DDImage image { get; set; }
-        public string name { get; set; }
-        public string title { get; set; }
-        public int key { get; set; }
+        public Collection<string> Tags { get; private set; }
+        public DDImage Image { get; set; }
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public int Key { get; set; }
 
         public ChampionData()
         {
-            tags = new Collection<string>();
-            image = new DDImage();
-            name = "";
-            title = "";
-            key = 0;
+            Tags = new Collection<string>();
+            Image = new DDImage();
+            Name = "";
+            Title = "";
+            Key = 0;
         }
     }
 }

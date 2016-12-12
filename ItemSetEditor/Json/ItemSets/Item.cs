@@ -4,26 +4,26 @@ namespace ItemSetEditor
 {
     public class Item
     {
-        public int id { get; set; }
-        public int count { get; set; }
+        public int Id { get; set; }
+        public int Count { get; set; }
 
         [JsonIgnore]
-        public DDImage image
+        public DDImage Image
         {
             get
             {
                 ItemData item;
-                if (MainWindow.Items.data.TryGetValue(id + "", out item))
-                    return item.image;
+                if (MainWindow.Items.Data.TryGetValue(Id + "", out item))
+                    return item.Image;
 
-                return new DDImage() { sprite = "item0.png", h = 45, w = 45, x = 45, y = 5 * 45 };
+                return new DDImage() { Sprite = "item0.png", Height = 45, Width = 45, Left = 45, Top = 5 * 45 };
             }
         }
 
         public Item()
         {
-            id = 0;
-            count = 1;
+            Id = 0;
+            Count = 1;
         }
     }
 }

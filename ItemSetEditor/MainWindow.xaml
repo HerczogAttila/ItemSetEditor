@@ -14,26 +14,26 @@
             <RadioButton GroupName="itemTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectItemTag_Checked" />
         </DataTemplate>
         <DataTemplate x:Key="championTags">
-            <RadioButton GroupName="itemTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectChampionTag_Checked" />
+            <RadioButton GroupName="championTag" Width="150" Content="{Binding Tag}" IsChecked="{Binding IsChecked}" Checked="SelectChampionTag_Checked" />
         </DataTemplate>
         <DataTemplate x:Key="item">
             <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseMove="BlockItemDrag_MouseMove" MouseLeave="BlockItem_MouseLeave" MouseLeftButtonUp="InsertItem">
                 <Image.Source>
-                    <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                    <CroppedBitmap Source="{Binding Image.AbsolutePath}" SourceRect="{Binding Image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="itemSelect">
             <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseMove="ItemDrag_MouseMove" ToolTip="{Binding description}">
                 <Image.Source>
-                    <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                    <CroppedBitmap Source="{Binding Image.AbsolutePath}" SourceRect="{Binding Image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="championIcon">
             <Image Tag="{Binding}" Width="48" Height="48" MouseLeftButtonDown="ChampionRemove_MouseLeftButtonDown">
                 <Image.Source>
-                    <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                    <CroppedBitmap Source="{Binding Image.AbsolutePath}" SourceRect="{Binding Image.SourceRect}" />
                 </Image.Source>
             </Image>
         </DataTemplate>
@@ -41,16 +41,16 @@
             <StackPanel Width="100" Orientation="Horizontal">
                 <Image Tag="{Binding}" Width="24" Height="24" MouseLeftButtonDown="ChampionAdd_MouseLeftButtonDown">
                     <Image.Source>
-                        <CroppedBitmap Source="{Binding image.AbsolutePath}" SourceRect="{Binding image.SourceRect}" />
+                        <CroppedBitmap Source="{Binding Image.AbsolutePath}" SourceRect="{Binding Image.SourceRect}" />
                     </Image.Source>
                 </Image>
-                <TextBlock Text="{Binding name}" />
+                <TextBlock Text="{Binding Name}" />
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="mapSelect">
             <StackPanel Margin="0,0,15,0" Orientation="Horizontal">
                 <CheckBox Tag="{Binding MapId}" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Checked="Map_Checked" Unchecked="Map_Unchecked" />
-                <Image Width="48" Height="48" DataContext="{Binding image}">
+                <Image Width="48" Height="48" DataContext="{Binding Image}">
                     <Image.Source>
                         <CroppedBitmap Source="{Binding AbsolutePath}" SourceRect="{Binding SourceRect}" />
                     </Image.Source>
@@ -61,16 +61,16 @@
             <StackPanel Background="White" Tag="{Binding}" MouseUp="ItemBlock_MouseUp" MouseLeave="ItemBlock_MouseLeave" MouseMove="ItemBlock_MouseMove" >
                 <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                     <TextBlock Text="Block title: " />
-                    <TextBox Tag="{Binding}" Text="{Binding type, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
+                    <TextBox Tag="{Binding}" Text="{Binding BlockType, Mode=TwoWay}" KeyDown="BlockTitle_KeyDown" />
                     <Button Margin="25,0,0,0" Tag="{Binding}" Content="Delete" Click="DeleteItemBlock_Click" />
                 </StackPanel>
                 <Border BorderThickness="1" BorderBrush="Black" >
-                    <ItemsControl Margin="2" MinHeight="68" ItemsSource="{Binding items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateWrap}" />
+                    <ItemsControl Margin="2" MinHeight="68" ItemsSource="{Binding Items}" ItemTemplate="{StaticResource item}" ItemsPanel="{StaticResource templateWrap}" />
                 </Border>
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="itemSetList">
-            <TextBlock Tag="{Binding}" Text="{Binding title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
+            <TextBlock Tag="{Binding}" Text="{Binding Title}" MouseLeftButtonDown="ItemSet_MouseLeftButtonDown" />
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -95,7 +95,7 @@
                 <Button Margin="0,0,20,0" Content="Delete selected item set" Click="DeleteSelected_Click" />
             </StackPanel>
             <ScrollViewer Grid.Row="1" Grid.Column="0">
-                <ItemsControl Name="sets" ItemsSource="{Binding ItemSets.itemSets}" ItemTemplate="{StaticResource itemSetList}" />
+                <ItemsControl ItemsSource="{Binding ItemSets.Sets}" ItemTemplate="{StaticResource itemSetList}" />
             </ScrollViewer>
             <Grid Margin="15,10,0,0" Grid.Row="1" Grid.Column="1" DataContext="{Binding Selected}">
                 <Grid.RowDefinitions>
@@ -106,14 +106,14 @@
                 <StackPanel>
                     <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                         <TextBlock Text="Title: " />
-                        <TextBox Text="{Binding title}" KeyDown="Title_KeyDown" />
+                        <TextBox Text="{Binding Title}" KeyDown="Title_KeyDown" />
                     </StackPanel>
                     <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding MapIds}" ItemTemplate="{StaticResource mapSelect}" ItemsPanel="{StaticResource templateWrap}" />
                     <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding Champions}" ItemTemplate="{StaticResource championIcon}" ItemsPanel="{StaticResource templateWrap}" />
                     <TextBlock Margin="0,10,0,0" Text="Item blocks:" />
                 </StackPanel>
                 <ScrollViewer Grid.Row="1" Margin="0,0,0,15" >
-                    <ItemsControl ItemsSource="{Binding blocks}" ItemTemplate="{StaticResource itemBlock}" />
+                    <ItemsControl ItemsSource="{Binding Blocks}" ItemTemplate="{StaticResource itemBlock}" />
                 </ScrollViewer>
                 <Button Grid.Row="2" Content="New item block" Click="NewItemBlock_Click" HorizontalAlignment="Left" />
             </Grid>

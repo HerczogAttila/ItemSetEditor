@@ -1,27 +1,32 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
+using System.IO;
 
 namespace ItemSetEditor
 {
     public class DDImage
     {
-        public string sprite { get; set; }
-        public int x { get; set; }
-        public int y { get; set; }
-        public int w { get; set; }
-        public int h { get; set; }
+        public string Sprite { get; set; }
+        [JsonProperty("x")]
+        public int Left { get; set; }
+        [JsonProperty("y")]
+        public int Top { get; set; }
+        [JsonProperty("w")]
+        public int Width { get; set; }
+        [JsonProperty("h")]
+        public int Height { get; set; }
 
-        public string Link => "http://ddragon.leagueoflegends.com/cdn/" + MainWindow.Config.Version + "/img/sprite/" + sprite;
-        public string Path => "ItemSetEditor\\" + sprite;
-        public string SourceRect => x + " " + y + " " + w + " " + h;
+        public string Link => "http://ddragon.leagueoflegends.com/cdn/" + MainWindow.Config.Version + "/img/sprite/" + Sprite;
+        public string Path => "ItemSetEditor\\" + Sprite;
+        public string SourceRect => Left + " " + Top + " " + Width + " " + Height;
         public string AbsolutePath => Directory.GetCurrentDirectory() + "\\" + Path;
 
         public DDImage()
         {
-            sprite = "";
-            x = 0;
-            y = 0;
-            w = 0;
-            h = 0;
+            Sprite = "";
+            Left = 0;
+            Top = 0;
+            Width = 0;
+            Height = 0;
         }
     }
 }

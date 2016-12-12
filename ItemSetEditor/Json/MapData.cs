@@ -7,7 +7,7 @@ namespace ItemSetEditor
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public DDImage image { get; set; }
+        public DDImage Image { get; set; }
         public string MapName { get; set; }
         public int MapId { get; set; }
 
@@ -16,7 +16,7 @@ namespace ItemSetEditor
 
         public MapData()
         {
-            image = new DDImage();
+            Image = new DDImage();
             MapName = "";
             MapId = 0;
             IsChecked = false;

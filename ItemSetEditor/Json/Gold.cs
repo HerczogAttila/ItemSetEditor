@@ -4,15 +4,18 @@ namespace ItemSetEditor
 {
     public class Gold
     {
-        public bool purchasable { get; set; }
+        public bool Purchasable { get; set; }
         [JsonProperty("base")]
-        public int baseValue { get; set; }
-        public int total { get; set; }
-        public int sell { get; set; }
+        public int BaseValue { get; set; }
+        public int Total { get; set; }
+        public int Sell { get; set; }
 
         public Gold()
         {
-            purchasable = false;
+            Purchasable = false;
+            BaseValue = 0;
+            Total = 0;
+            Sell = 0;
         }
     }
 }
