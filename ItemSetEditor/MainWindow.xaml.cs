@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Linq;
 using System.Windows.Input;
 using System.Threading.Tasks;
-using System.Net.Http;
 using System;
 using System.Net;
 using System.Collections.ObjectModel;
@@ -18,7 +17,7 @@ namespace ItemSetEditor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window, INotifyPropertyChanged, IDisposable
     {
         public static ItemDto Items { get; set; }
         public static ChampionDto Champions { get; set; }
@@ -78,27 +77,9 @@ namespace ItemSetEditor
             await WebClient.DownloadFileTaskAsync(image.Link, image.Path);
         }
 
-        private async Task<string> Download(string link)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(link);
-                var response = client.GetAsync(link).Result;
-                if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
-            }
-
-            return string.Empty;
-        }
-
-        private async Task DownloadAndSave(string link, string path)
-        {
-            var data = await Download(link);
-            File.WriteAllText(path, data);
-        }
-
         private async Task<string> LatestVersion()
         {
-            var data = await Download(LinkVersions);
+            var data = await WebClient.DownloadStringTaskAsync(LinkVersions);
             var versions = JsonConvert.DeserializeObject<Collection<string>>(data);
             if (versions != null)
                 if (versions.Count > 0)
@@ -234,7 +215,7 @@ namespace ItemSetEditor
                 ProgressText = "Download maps...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await DownloadAndSave(LinkMaps, PathMaps);
+                await WebClient.DownloadFileTaskAsync(LinkMaps, PathMaps);
                 isDownloaded = true;
             }
 
@@ -262,7 +243,7 @@ namespace ItemSetEditor
                 ProgressText = "Download items...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await DownloadAndSave(LinkItems, PathItems);
+                await WebClient.DownloadFileTaskAsync(LinkItems, PathItems);
                 isDownloaded = true;
             }
 
@@ -299,7 +280,7 @@ namespace ItemSetEditor
                 ProgressText = "Download champions...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await DownloadAndSave(LinkChampions, PathChampions);
+                await WebClient.DownloadFileTaskAsync(LinkChampions, PathChampions);
                 isDownloaded = true;
             }
 
@@ -648,6 +629,23 @@ namespace ItemSetEditor
         {
             if (thread != null)
                 thread.Abort();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // dispose managed resources
+                if (WebClient != null)
+                    WebClient.Dispose();
+            }
+            // free native resources
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
