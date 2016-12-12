@@ -70,12 +70,6 @@ namespace ItemSetEditor
             DataContext = this;
         }
 
-        private Point MousePoint()
-        {
-            var p = System.Windows.Forms.Control.MousePosition;
-            return PointFromScreen(new Point(p.X, p.Y));
-        }
-
         private async Task DownloadImage(DDImage image, bool update = false)
         {
             if (File.Exists(image.Path) && !update)
@@ -522,7 +516,7 @@ namespace ItemSetEditor
                 Mouse.AddMouseMoveHandler(this, Item_MouseMove);
                 Mouse.AddMouseUpHandler(this, Item_MouseRelease);
 
-                var p = MousePoint();
+                var p = e.GetPosition(this);
                 drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
                 drag.Source = (sender as Image).Source;
@@ -535,7 +529,7 @@ namespace ItemSetEditor
 
         private void Item_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = MousePoint();
+            var p = e.GetPosition(this);
             drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
             if (e.LeftButton == MouseButtonState.Released)
@@ -598,7 +592,7 @@ namespace ItemSetEditor
                 Mouse.AddMouseMoveHandler(this, Item_MouseMove);
                 Mouse.AddMouseUpHandler(this, Item_MouseRelease);
 
-                var p = MousePoint();
+                var p = e.GetPosition(this);
                 drag.Margin = new Thickness(p.X - 24, p.Y - 24, 0, 0);
 
                 drag.Source = (sender as Image).Source;
