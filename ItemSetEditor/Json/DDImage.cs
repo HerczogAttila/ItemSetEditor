@@ -5,6 +5,8 @@ namespace ItemSetEditor
 {
     public class DDImage
     {
+        public static string BaseLink { get; set; } = "";
+
         public string Sprite { get; set; }
         [JsonProperty("x")]
         public int Left { get; set; }
@@ -15,7 +17,7 @@ namespace ItemSetEditor
         [JsonProperty("h")]
         public int Height { get; set; }
 
-        public string Link => "http://ddragon.leagueoflegends.com/cdn/" + MainWindow.Config.Version + "/img/sprite/" + Sprite;
+        public string Link => BaseLink + Sprite;
         public string Path => "ItemSetEditor\\" + Sprite;
         public string SourceRect => Left + " " + Top + " " + Width + " " + Height;
         public string AbsolutePath => Directory.GetCurrentDirectory() + "\\" + Path;

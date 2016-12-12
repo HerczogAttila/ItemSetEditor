@@ -12,12 +12,15 @@ namespace ItemSetEditor
             Data = new Dictionary<string, ItemData>();
         }
 
-        public void Deserialized()
+        public void Deserialized(Config config)
         {
+            if (config == null)
+                return;
+
             foreach (var v in Data.Where(s => !s.Value.Gold.Purchasable).ToArray())
                 Data.Remove(v.Key);
 
-            foreach (int v in MainWindow.Config.IgnoredItemIds)
+            foreach (int v in config.IgnoredItemIds)
                 Data.Remove(v + "");
 
             foreach (KeyValuePair<string, ItemData> s in Data)

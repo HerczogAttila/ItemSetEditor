@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -48,17 +49,17 @@ namespace ItemSetEditor
             IsGlobalForChampions = false;
         }
 
-        public void OnChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        public void OnChanged(string name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
 
-        public void Deserialized()
+        public void Deserialized(Dictionary<string, ChampionData> data)
         {
+            if (data == null)
+                return;
+
             ChampionData champion;
             foreach(int i in AssociatedChampions)
             {
-                champion = MainWindow.Champions.Data.Values.FirstOrDefault(s => s.Key == i);
+                champion = data.Values.FirstOrDefault(s => s.Key == i);
                 if (champion != null)
                     Champions.Add(champion);
             }

@@ -50,6 +50,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>ItemSetEditor.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -75,7 +78,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\PageEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -85,6 +92,7 @@
     </Compile>
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="DataModel\Config.cs" />
+    <Compile Include="DataModel\DataEditor.cs" />
     <Compile Include="DataModel\SortTag.cs" />
     <Compile Include="Json\ChampionData.cs" />
     <Compile Include="Json\Champions.cs" />
@@ -98,12 +106,22 @@
     <Compile Include="Json\ItemSets\Item.cs" />
     <Compile Include="Json\ItemSets\ItemSet.cs" />
     <Compile Include="Json\ItemSets\ItemSets.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\PageEditor.xaml.cs">
+      <DependentUpon>PageEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PageLoading.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Views\PageLoading.xaml.cs">
+      <DependentUpon>PageLoading.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
