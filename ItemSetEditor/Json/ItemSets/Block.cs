@@ -20,6 +20,9 @@ namespace ItemSetEditor
 
         public void OnChanged(string name)
         {
+#if DEBUG
+            Log.Info("Block OnChanged: " + name);
+#endif
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }

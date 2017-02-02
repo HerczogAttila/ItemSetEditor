@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ItemSetEditor
 {
@@ -82,6 +72,10 @@ namespace ItemSetEditor
         {
             if (e.LeftButton == MouseButtonState.Pressed && dragged == null)
             {
+#if DEBUG
+                Log.Info("Item drag.");
+#endif
+
                 Mouse.AddMouseMoveHandler(this, Item_MouseMove);
                 Mouse.AddMouseUpHandler(this, Item_MouseRelease);
 
@@ -106,6 +100,10 @@ namespace ItemSetEditor
         }
         private void Item_MouseRelease(object sender, MouseEventArgs e)
         {
+#if DEBUG
+            Log.Info("Item drop.");
+#endif
+
             Mouse.OverrideCursor = Cursors.Arrow;
             drag.Visibility = Visibility.Collapsed;
 
@@ -118,6 +116,10 @@ namespace ItemSetEditor
         {
             if (dragged == null)
                 return;
+
+#if DEBUG
+            Log.Info("Item drop.");
+#endif
 
             var block = (sender as StackPanel).Tag as Block;
             block.Items.Add(new Item() { Id = int.Parse(dragged.Id, CultureInfo.GetCultureInfo("en-US").NumberFormat), Count = 1 });
@@ -133,6 +135,10 @@ namespace ItemSetEditor
 
             if (e.LeftButton == MouseButtonState.Pressed && dragged == null)
             {
+#if DEBUG
+                Log.Info("Item drop.");
+#endif
+
                 Mouse.AddMouseMoveHandler(this, Item_MouseMove);
                 Mouse.AddMouseUpHandler(this, Item_MouseRelease);
 
@@ -155,6 +161,10 @@ namespace ItemSetEditor
         {
             if (dragged == null)
                 return;
+
+#if DEBUG
+            Log.Info("Item insert.");
+#endif
 
             var item = (sender as Image).Tag as Item;
             var block = data.Selected.Blocks.FirstOrDefault(s => s.Items.Contains(item));
@@ -187,22 +197,10 @@ namespace ItemSetEditor
 
         #endregion
 
-        private void SortItemName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            data.SortItems();
-        }
-        private void SelectItemTag_Checked(object sender, RoutedEventArgs e)
-        {
-            data.SortItems();
-        }
-        private void SortChampionName_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            data.SortChampions();
-        }
-        private void SelectChampionTag_Checked(object sender, RoutedEventArgs e)
-        {
-            data.SortChampions();
-        }
+        private void SortItemName_TextChanged(object sender, TextChangedEventArgs e) { data.SortItems(); }
+        private void SelectItemTag_Checked(object sender, RoutedEventArgs e) { data.SortItems(); }
+        private void SortChampionName_TextChanged(object sender, TextChangedEventArgs e) { data.SortChampions(); }
+        private void SelectChampionTag_Checked(object sender, RoutedEventArgs e) { data.SortChampions(); }
     }
 }
 //item tree

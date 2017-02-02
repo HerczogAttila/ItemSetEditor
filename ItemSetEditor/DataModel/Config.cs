@@ -30,7 +30,21 @@ namespace ItemSetEditor
         }
 
         public static bool Exists() { return File.Exists(SavePath); }
-        public static Config Load() { return JsonConvert.DeserializeObject<Config>(File.ReadAllText(SavePath)); }
-        public void Save() { File.WriteAllText(SavePath, JsonConvert.SerializeObject(this)); }
+        public static Config Load()
+        {
+#if DEBUG
+            Log.Info("Load config.");
+#endif
+
+            return JsonConvert.DeserializeObject<Config>(File.ReadAllText(SavePath));
+        }
+        public void Save()
+        {
+#if DEBUG
+            Log.Info("Save config.");
+#endif
+
+            File.WriteAllText(SavePath, JsonConvert.SerializeObject(this));
+        }
     }
 }

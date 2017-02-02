@@ -24,7 +24,7 @@
             </Image>
         </DataTemplate>
         <DataTemplate x:Key="itemSelect">
-            <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseMove="ItemDrag_MouseMove" ToolTip="{Binding description}">
+            <Image Margin="2" Tag="{Binding}" Width="48" Height="48" MouseMove="ItemDrag_MouseMove" ToolTip="{Binding Description}">
                 <Image.Source>
                     <CroppedBitmap Source="{Binding Image.AbsolutePath}" SourceRect="{Binding Image.SourceRect}" />
                 </Image.Source>

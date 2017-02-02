@@ -5,6 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ItemSetEditor"
         mc:Ignorable="d"
-        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
+        Title="Item Set Editor (Beta)" Height="600" Width="1200" Loaded="Window_Loaded" Closed="Window_Closed" WindowStartupLocation="CenterScreen">
     <Grid/>
 </Window>

@@ -21,10 +21,25 @@ namespace ItemSetEditor
         }
         public static string Generate(params int[] pars)
         {
+#if DEBUG
+            if (pars != null)
+            {
+                string s = "";
+                foreach (int i in pars)
+                    s += i + " ";
+
+                Log.Info("Start code generating: " + s);
+            }
+#endif
+
             string ve = "LOL";
             if (pars != null)
                 foreach (int i in pars)
                     ve += "_" + GeneratePart(i);
+
+#if DEBUG
+            Log.Info("Generated code: " + ve);
+#endif
 
             return ve;
         }

@@ -47,6 +47,10 @@ namespace ItemSetEditor
 
         public void SortItems()
         {
+#if DEBUG
+            Log.Info("Sort items.");
+#endif
+
             var sorted = Items.Data.Values.Where(s => !s.HideFromAll);
             foreach (var v in Selected.AssociatedMaps)
                 sorted = sorted.Where(s => s.Maps.ContainsKey(v + ""));
@@ -72,6 +76,10 @@ namespace ItemSetEditor
         }
         public void SortChampions()
         {
+#if DEBUG
+            Log.Info("Sort champions.");
+#endif
+
             SortedChampions = Champions.Data.Values;
 
             if (!string.IsNullOrEmpty(SortChampionName))
@@ -86,6 +94,10 @@ namespace ItemSetEditor
         }
         public void SelectItemSet(ItemSet itemSet)
         {
+#if DEBUG
+            Log.Info("Select item set: " + itemSet.Title);
+#endif
+
             Selected = itemSet;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Selected"));
 
@@ -111,23 +123,43 @@ namespace ItemSetEditor
         }
         public void ItemSetChanged(bool enabled)
         {
+#if DEBUG
+            Log.Info("Item set changed: " + enabled);
+#endif
+
             IsChanged = enabled;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsChanged"));
         }
         public void AddNewItemSet()
         {
+#if DEBUG
+            Log.Info("Add new item set.");
+#endif
+
             var newSet = new ItemSet() { Title = "Item set " + ItemSets.Sets.Count };
+            newSet.Id = CodeGenerator.Generate();
             newSet.Blocks.Add(new Block() { BlockType = "Item block 1" });
+
             while (ItemSets.Sets.FirstOrDefault(s => s.Id == newSet.Id) != null)
             {
+#if DEBUG
+                Log.Info("Generated new code: " + newSet.Id);
+#endif
+
                 newSet.Id = CodeGenerator.Generate();
             }
+
             ItemSets.Sets.Add(newSet);
+
             SelectItemSet(newSet);
             ItemSetChanged(true);
         }
         public void ReadItemSets()
         {
+#if DEBUG
+            Log.Info("Read item sets.");
+#endif
+
             if (File.Exists(SavePath))
             {
                 ItemSets = JsonConvert.DeserializeObject<ItemSets>(File.ReadAllText(SavePath));
@@ -135,15 +167,29 @@ namespace ItemSetEditor
                     i.Deserialized(Champions.Data);
             }
             else
+            {
+#if DEBUG
+                Log.Warning("Not found item sets (" + SavePath + "). Create new item sets.");
+#endif
+
                 ItemSets = new ItemSets();
+            }
         }
         public void SaveItemSets()
         {
+#if DEBUG
+            Log.Info("Save item sets.");
+#endif
+
             File.WriteAllText(SavePath, JsonConvert.SerializeObject(ItemSets));
             ItemSetChanged(false);
         }
         public void UndoAll()
         {
+#if DEBUG
+            Log.Info("Undo all changes.");
+#endif
+
             ReadItemSets();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ItemSets"));
 
@@ -156,6 +202,10 @@ namespace ItemSetEditor
         }
         public void DeleteSelectedItemSet()
         {
+#if DEBUG
+            Log.Info("Delete item set.");
+#endif
+
             ItemSets.Sets.Remove(Selected);
             if (ItemSets.Sets.Count > 0)
                 SelectItemSet(ItemSets.Sets.ElementAt(ItemSets.Sets.Count - 1));
@@ -166,6 +216,10 @@ namespace ItemSetEditor
         }
         public void AddMap(int id)
         {
+#if DEBUG
+            Log.Info("Add map id to selected item set. Map id: " + id);
+#endif
+
             if (!Selected.AssociatedMaps.Contains(id))
             {
                 if (Selected.AssociatedMaps.Count == 0)
@@ -178,9 +232,17 @@ namespace ItemSetEditor
                 ItemSetChanged(true);
                 SortItems();
             }
+#if DEBUG
+            else
+                Log.Warning("The selected item set already contains map id: " + id);
+#endif
         }
         public void RemoveMap(int id)
         {
+#if DEBUG
+            Log.Info("Remove map id from selected item set. Map id: " + id);
+#endif
+
             Selected.AssociatedMaps.Remove(id);
             ItemSetChanged(true);
             SortItems();
@@ -194,7 +256,17 @@ namespace ItemSetEditor
         public void AddChampion(ChampionData champion)
         {
             if (champion == null)
+            {
+#if DEBUG
+                Log.Warning("Add champion failed. Champion is null.");
+#endif
+
                 return;
+            }
+
+#if DEBUG
+            Log.Info("Add champion to selected item set. Champion: " + champion.Name);
+#endif
 
             if (!Selected.AssociatedChampions.Contains(champion.Key))
             {
@@ -209,6 +281,10 @@ namespace ItemSetEditor
                 ItemSetChanged(true);
                 SortItems();
             }
+#if DEBUG
+            else
+                Log.Warning("The selected item set already contains " + champion.Name);
+#endif
         }
         public void RemoveChampion(ChampionData champion)
         {
@@ -229,6 +305,10 @@ namespace ItemSetEditor
         }
         public void AddNewItemBlock()
         {
+#if DEBUG
+            Log.Info("Add new item block.");
+#endif
+
             Selected.Blocks.Add(new Block() { BlockType = "Item block " + (Selected.Blocks.Count() + 1) });
             ItemSetChanged(true);
         }
@@ -236,11 +316,26 @@ namespace ItemSetEditor
         {
             if (itemBlock != null)
             {
+#if DEBUG
+                Log.Info("Delete item block.");
+#endif
+
                 Selected.Blocks.Remove(itemBlock);
                 ItemSetChanged(true);
             }
+#if DEBUG
+            else
+                Log.Warning("Delete item block failed. itemBlock is null.");
+#endif
         }
 
-        public void OnChanged(string name) { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)); }
+        public void OnChanged(string name)
+        {
+#if DEBUG
+            Log.Info("DataEditor OnChanged: " + name);
+#endif
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

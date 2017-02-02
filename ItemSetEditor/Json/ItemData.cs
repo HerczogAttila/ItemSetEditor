@@ -31,8 +31,22 @@ namespace ItemSetEditor
 
         public void Deserialized()
         {
+#if DEBUG
+            Log.Info("ItemData deserialize.");
+#endif
+
             foreach (var v in Maps.Where(s => s.Value == false).ToArray())
+            {
+#if DEBUG
+                Log.Info("Remove map from item: " + v.Key);
+#endif
+
                 Maps.Remove(v.Key);
+            }
+
+#if DEBUG
+            Log.Info("Create item description: " + Name);
+#endif
 
             Description = Name + "(" + Id + ")" + "\r\n" + Description;
             Description = Description.Replace("<br>", "\r\n");

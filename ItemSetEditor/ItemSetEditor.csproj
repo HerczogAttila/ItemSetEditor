@@ -106,6 +106,7 @@
     <Compile Include="Json\ItemSets\Item.cs" />
     <Compile Include="Json\ItemSets\ItemSet.cs" />
     <Compile Include="Json\ItemSets\ItemSets.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Views\PageEditor.xaml.cs">
       <DependentUpon>PageEditor.xaml</DependentUpon>
     </Compile>

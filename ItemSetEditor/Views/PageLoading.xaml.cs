@@ -21,13 +21,14 @@ namespace ItemSetEditor
 
         public string ProgressText { get; set; }
 
-        private WebClient webClient = new WebClient();
+        private WebClient webClient;
         private Thread loading;
         private DataEditor data;
 
         public PageLoading()
         {
             InitializeComponent();
+            webClient = new WebClient();
             data = new DataEditor();
             Item.Data = data;
             ProgressText = "Loading...";
@@ -40,28 +41,68 @@ namespace ItemSetEditor
             if (File.Exists(image.Path) && !update)
                 return;
 
+#if DEBUG
+            Log.Info("Download image: " + image.Link + " to: " + image.Path);
+#endif
+
             await webClient.DownloadFileTaskAsync(image.Link, image.Path);
         }
         private async Task<string> LatestVersion()
         {
+#if DEBUG
+            Log.Info("Download versions.");
+#endif
+
             var data = await webClient.DownloadStringTaskAsync(this.data.Config.LinkVersions);
+
+#if DEBUG
+            if (string.IsNullOrEmpty(data))
+                Log.Warning("Download versions is failed!");
+#endif
+
             var versions = JsonConvert.DeserializeObject<Collection<string>>(data);
             if (versions != null)
+            {
                 if (versions.Count > 0)
                     return versions.ElementAt(0);
+#if DEBUG
+                else
+                    Log.Warning("Versions list is empty!");
+#endif
+            }
+#if DEBUG
+            else
+                Log.Warning("Deserialize versions is failed!");
+#endif
 
-            return "6.23.1";
+            return "7.2.1";
         }
         private async Task ReadConfig()
         {
+#if DEBUG
+            Log.Info("Read config.");
+#endif
+
             if (Config.Exists())
             {
                 data.Config = Config.Load();
-                data.Config.Version = await LatestVersion();
-                data.Config.Save();
+                var latest = await LatestVersion();
+                if (data.Config.Version != latest)
+                {
+#if DEBUG
+                    Log.Info("New version detected.");
+#endif
+
+                    data.Config.Version = await LatestVersion();
+                    data.Config.Save();
+                }
             }
             else
             {
+#if DEBUG
+                Log.Warning("Not found config file! Create with default data.");
+#endif
+
                 data.Config = new Config() { Version = await LatestVersion(), Language = "en_US" };
 
                 data.Config.IgnoredMapIds.Add(1);
@@ -87,6 +128,10 @@ namespace ItemSetEditor
         }
         private async Task ReadAndDownloadMaps()
         {
+#if DEBUG
+            Log.Info("Read maps.");
+#endif
+
             bool isDownloaded = false;
             if (!File.Exists(data.Config.PathMaps))
             {
@@ -101,7 +146,17 @@ namespace ItemSetEditor
             foreach (var v in maps.Data.Values)
             {
                 if (!data.Config.IgnoredMapIds.Contains(v.MapId))
+                {
+#if DEBUG
+                    Log.Info("Add map: " + v.MapName + ". Id: " + v.MapId);
+#endif
+
                     ItemSet.MapIds.Add(v);
+                }
+#if DEBUG
+                else
+                    Log.Info("Ignored map: " + v.MapName + ". Id: " + v.MapId);
+#endif
             }
 
             MapData i;
@@ -116,6 +171,10 @@ namespace ItemSetEditor
         }
         private async Task ReadAndDownloadItems()
         {
+#if DEBUG
+            Log.Info("Read items.");
+#endif
+
             bool isDownloaded = false;
             if (!File.Exists(data.Config.PathItems))
             {
@@ -125,6 +184,10 @@ namespace ItemSetEditor
                 await webClient.DownloadFileTaskAsync(data.Config.LinkItems, data.Config.PathItems);
                 isDownloaded = true;
             }
+
+#if DEBUG
+            Log.Info("Initialize item tags.");
+#endif
 
             data.ItemTags.Clear();
             data.ItemTags.Add(new SortTag() { IsChecked = true });
@@ -152,6 +215,10 @@ namespace ItemSetEditor
         }
         private async Task ReadAndDownloadChampions()
         {
+#if DEBUG
+            Log.Info("Read champions.");
+#endif
+
             bool isDownloaded = false;
             if (!File.Exists(data.Config.PathChampions))
             {
@@ -161,6 +228,10 @@ namespace ItemSetEditor
                 await webClient.DownloadFileTaskAsync(data.Config.LinkChampions, data.Config.PathChampions);
                 isDownloaded = true;
             }
+
+#if DEBUG
+            Log.Info("Initialize champion tags.");
+#endif
 
             data.ChampionTags.Add(new SortTag() { IsChecked = true });
 
@@ -207,12 +278,12 @@ namespace ItemSetEditor
 
         public void StartLoading(MainWindow win)
         {
+#if DEBUG
+            Log.Info("Start loading.");
+#endif
+
             loading = new Thread(new ThreadStart(async () =>
             {
-                foreach (string s in new string[] { "Config", "ItemSetEditor" })
-                    if (!Directory.Exists(s))
-                        Directory.CreateDirectory(s);
-
                 await ReadConfig();
                 await ReadAndDownloadMaps();
                 await ReadAndDownloadItems();

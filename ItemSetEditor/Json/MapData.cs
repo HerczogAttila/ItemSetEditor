@@ -24,6 +24,10 @@ namespace ItemSetEditor
 
         public void OnChanged(string name)
         {
+#if DEBUG
+            Log.Info("MapData OnChanged: " + name);
+#endif
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
