@@ -34,6 +34,7 @@ namespace ItemSetEditor
 #if DEBUG
             Log.Info("Change page: PageLoading");
 #endif
+
             var page = new PageLoading();
             Content = page;
             page.StartLoading(this);

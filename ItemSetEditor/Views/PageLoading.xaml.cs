@@ -45,7 +45,16 @@ namespace ItemSetEditor
             Log.Info("Download image: " + image.Link + " to: " + image.Path);
 #endif
 
-            await webClient.DownloadFileTaskAsync(image.Link, image.Path);
+            try
+            {
+                await webClient.DownloadFileTaskAsync(image.Link, image.Path);
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Log.Error("Failed to download image: " + image.Link + ". \r\n" + e.Message);
+#endif
+            }
         }
         private async Task<string> LatestVersion()
         {
@@ -53,14 +62,24 @@ namespace ItemSetEditor
             Log.Info("Download versions.");
 #endif
 
-            var data = await webClient.DownloadStringTaskAsync(this.data.Config.LinkVersions);
+            string versionsData = "";
+            try
+            {
+                versionsData = await webClient.DownloadStringTaskAsync(data.Config.LinkVersions);
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Log.Error("Failed to download versions: " + data.Config.LinkVersions + ". \r\n" + e.Message);
+#endif
+            }
 
 #if DEBUG
-            if (string.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(versionsData))
                 Log.Warning("Download versions is failed!");
 #endif
 
-            var versions = JsonConvert.DeserializeObject<Collection<string>>(data);
+            var versions = JsonConvert.DeserializeObject<Collection<string>>(versionsData);
             if (versions != null)
             {
                 if (versions.Count > 0)
@@ -138,7 +157,17 @@ namespace ItemSetEditor
                 ProgressText = "Download maps...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await webClient.DownloadFileTaskAsync(data.Config.LinkMaps, data.Config.PathMaps);
+                try
+                {
+                    await webClient.DownloadFileTaskAsync(data.Config.LinkMaps, data.Config.PathMaps);
+                }
+                catch (Exception e)
+                {
+#if DEBUG
+                    Log.Error("Failed to download maps: " + data.Config.LinkMaps + ". \r\n" + e.Message);
+#endif
+                }
+
                 isDownloaded = true;
             }
 
@@ -181,7 +210,17 @@ namespace ItemSetEditor
                 ProgressText = "Download items...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await webClient.DownloadFileTaskAsync(data.Config.LinkItems, data.Config.PathItems);
+                try
+                {
+                    await webClient.DownloadFileTaskAsync(data.Config.LinkItems, data.Config.PathItems);
+                }
+                catch (Exception e)
+                {
+#if DEBUG
+                    Log.Error("Failed to download items: " + data.Config.LinkItems + ". \r\n" + e.Message);
+#endif
+                }
+
                 isDownloaded = true;
             }
 
@@ -225,7 +264,17 @@ namespace ItemSetEditor
                 ProgressText = "Download champions...";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressText"));
 
-                await webClient.DownloadFileTaskAsync(data.Config.LinkChampions, data.Config.PathChampions);
+                try
+                {
+                    await webClient.DownloadFileTaskAsync(data.Config.LinkChampions, data.Config.PathChampions);
+                }
+                catch (Exception e)
+                {
+#if DEBUG
+                    Log.Error("Failed to download champions: " + data.Config.LinkChampions + ". \r\n" + e.Message);
+#endif
+                }
+
                 isDownloaded = true;
             }
 
