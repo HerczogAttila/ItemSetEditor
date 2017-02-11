@@ -11,7 +11,7 @@ namespace ItemSetEditor
 {
     public class DataEditor : INotifyPropertyChanged
     {
-        private static string SavePath = "Config\\ItemSets.json";
+        public static string SavePath { get; set; } = "Config\\ItemSets.json";
 
         public event PropertyChangedEventHandler PropertyChanged;
 

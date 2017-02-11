@@ -6,9 +6,9 @@ namespace ItemSetEditor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ItemSetEditorWindow : Window
     {
-        public MainWindow()
+        public ItemSetEditorWindow()
         {
             InitializeComponent();
 
@@ -21,11 +21,11 @@ namespace ItemSetEditor
             foreach (var s in dirs)
                 if (!Directory.Exists(s))
                 {
+                    Directory.CreateDirectory(s);
+
 #if DEBUG
                     Log.Info("Create directory: " + s);
 #endif
-
-                    Directory.CreateDirectory(s);
                 }
         }
 

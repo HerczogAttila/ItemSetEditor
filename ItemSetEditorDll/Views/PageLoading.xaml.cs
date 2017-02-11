@@ -325,7 +325,7 @@ namespace ItemSetEditor
             GC.SuppressFinalize(this);
         }
 
-        public void StartLoading(MainWindow win)
+        public void StartLoading(Window win)
         {
 #if DEBUG
             Log.Info("Start loading.");
