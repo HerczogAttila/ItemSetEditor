@@ -15,6 +15,7 @@ namespace ItemSetEditor
             var dirs = new string[] { "Config", "ItemSetEditor" };
 
 #if DEBUG
+            Log.Init();
             dirs = new string[] { @"ItemSetEditor\log", "Config", };
 #endif
 

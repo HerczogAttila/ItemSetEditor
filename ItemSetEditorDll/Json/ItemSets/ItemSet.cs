@@ -11,6 +11,11 @@ namespace ItemSetEditor
         [JsonIgnore]
         public static ObservableCollection<MapData> MapIds { get; private set; } = new ObservableCollection<MapData>();
 
+        public static void InitMaps()
+        {
+            MapIds = new ObservableCollection<MapData>();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [JsonIgnore]

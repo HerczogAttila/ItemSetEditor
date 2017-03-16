@@ -171,6 +171,7 @@ namespace ItemSetEditor
                 isDownloaded = true;
             }
 
+            ItemSet.InitMaps();
             var maps = JsonConvert.DeserializeObject<Maps>(File.ReadAllText(data.Config.PathMaps));
             foreach (var v in maps.Data.Values)
             {
